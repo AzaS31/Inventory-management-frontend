@@ -1,45 +1,35 @@
-import { useEffect, useState } from "react";
-import api from "../api/axios";
+import { useEffect, useState, useContext, useCallback } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import Notification from "../components/Notification";
 import Toolbar from "../components/Toolbar";
 import UsersTable from "../components/UsersTable";
+import api from "../api/axios";
 
 export default function AdminPage() {
+    const { user, loading } = useContext(AuthContext);
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [notification, setNotification] = useState({ message: "", type: "info" });
+    const [loadingUsers, setLoadingUsers] = useState(false);
 
-    useEffect(() => {
-        fetchUsers();
+    // Функция уведомлений
+    const showNotification = useCallback((message, type = "info") => {
+        setNotification({ message, type });
+        const timer = setTimeout(() => setNotification({ message: "", type: "info" }), 5000);
+        return () => clearTimeout(timer);
     }, []);
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const res = await api.get("/users");
-            setUsers(res.data);
-            setSelectedUsers([]);
-            setSelectAll(false);
-        } catch (err) {
-            showNotification("Failed to load users.", "error");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const showNotification = (message, type = "info") => {
-        setNotification({ message, type });
-        setTimeout(() => setNotification({ message: "", type: "info" }), 5000);
-    };
-
+    // Выбор пользователя
     const toggleSelectUser = (id) => {
         setSelectedUsers(prev =>
             prev.includes(id) ? prev.filter(u => u !== id) : [...prev, id]
         );
     };
 
+    // Выбор всех пользователей
     const toggleSelectAll = () => {
         if (selectAll) {
             setSelectedUsers([]);
@@ -49,31 +39,65 @@ export default function AdminPage() {
         setSelectAll(!selectAll);
     };
 
+    // Загрузка пользователей
+    const fetchUsers = useCallback(async () => {
+        setLoadingUsers(true);
+        try {
+            const res = await api.get("/users");
+            setUsers(res.data);
+            setSelectedUsers([]);
+            setSelectAll(false);
+        } catch (err) {
+            showNotification(err.response?.data?.message || err.message || "Failed to load users.", "error");
+        } finally {
+            setLoadingUsers(false);
+        }
+    }, [showNotification]);
+
+    // Проверка роли и редирект
+    useEffect(() => {
+        if (!loading) {
+            if (!user) return;
+            if (user.role?.name !== "ADMIN") {
+                navigate("/", { replace: true });
+            } else {
+                fetchUsers();
+            }
+        }
+    }, [loading, user, navigate, fetchUsers]);
+
+    // Изменение ролей выбранных пользователей
     const handleRoleChange = async (roleId) => {
         if (selectedUsers.length === 0) return;
         try {
-            await api.put("/users/role", { userIds: selectedUsers, roleId });
-            showNotification("Roles updated successfully.", "success");
+            const res = await api.put("/users/role", { userIds: selectedUsers, roleId });
+            showNotification(`${res.data.count} user(s) roles updated`, "success");
             fetchUsers();
         } catch (err) {
-            showNotification("Failed to update roles.", "error");
+            showNotification(err.response?.data?.message || "Failed to update roles", "error");
         }
     };
 
+    // Удаление выбранных пользователей
     const handleDelete = async () => {
         if (selectedUsers.length === 0) return;
         try {
-            for (const id of selectedUsers) {
-                await api.delete(`/users/${id}`);
-            }
-            showNotification("Users deleted successfully.", "success");
+            const res = await api.post("/users/delete", { userIds: selectedUsers });
+            showNotification(`${res.data.count} user(s) deleted`, "success");
+            setSelectedUsers([]);
             fetchUsers();
         } catch (err) {
-            showNotification("Failed to delete users.", "error");
+            showNotification(err.response?.data?.message || "Failed to delete users", "error");
         }
     };
 
-    if (loading) return <p className="text-center mt-5">Loading...</p>;
+    if (loading || loadingUsers) {
+        return <p className="text-center mt-5">Loading...</p>;
+    }
+
+    if (!user || user.role?.name !== "ADMIN") {
+        return <p className="alert alert-danger text-center mt-5">Redirecting... Access Denied.</p>;
+    }
 
     return (
         <div className="container mt-5">

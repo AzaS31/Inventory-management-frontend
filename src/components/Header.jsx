@@ -1,26 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import api from "../api/axios";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Header() {
-    const [user, setUser] = useState(null);
-    const navigate = useNavigate();
+    const { user, logout, initialLoading } = useContext(AuthContext);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            api
-                .get("/auth/profile")
-                .then(res => setUser(res.data))
-                .catch(() => setUser(null));
-        }
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        setUser(null);
-        navigate("/login");
-    };
+    if (initialLoading) return null;
 
     return (
         <header>
@@ -79,8 +64,8 @@ export default function Header() {
                     <div className="text-end">
                         {user ? (
                             <>
-                                <span className="text-white me-3">Welcome, {user.username}</span>
-                                <button className="btn btn-danger" onClick={handleLogout}>
+                                <span className="text-black me-3">Welcome, {user.username}</span>
+                                <button className="btn btn-danger" onClick={logout}>
                                     Logout
                                 </button>
                             </>
