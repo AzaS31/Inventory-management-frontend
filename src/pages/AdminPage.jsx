@@ -15,21 +15,18 @@ export default function AdminPage() {
     const [notification, setNotification] = useState({ message: "", type: "info" });
     const [loadingUsers, setLoadingUsers] = useState(false);
 
-    // Функция уведомлений
     const showNotification = useCallback((message, type = "info") => {
         setNotification({ message, type });
         const timer = setTimeout(() => setNotification({ message: "", type: "info" }), 5000);
         return () => clearTimeout(timer);
     }, []);
 
-    // Выбор пользователя
     const toggleSelectUser = (id) => {
         setSelectedUsers(prev =>
             prev.includes(id) ? prev.filter(u => u !== id) : [...prev, id]
         );
     };
 
-    // Выбор всех пользователей
     const toggleSelectAll = () => {
         if (selectAll) {
             setSelectedUsers([]);
@@ -39,7 +36,6 @@ export default function AdminPage() {
         setSelectAll(!selectAll);
     };
 
-    // Загрузка пользователей
     const fetchUsers = useCallback(async () => {
         setLoadingUsers(true);
         try {
@@ -54,7 +50,6 @@ export default function AdminPage() {
         }
     }, [showNotification]);
 
-    // Проверка роли и редирект
     useEffect(() => {
         if (!loading) {
             if (!user) return;
@@ -66,7 +61,6 @@ export default function AdminPage() {
         }
     }, [loading, user, navigate, fetchUsers]);
 
-    // Изменение ролей выбранных пользователей
     const handleRoleChange = async (roleId) => {
         if (selectedUsers.length === 0) return;
         try {
@@ -78,7 +72,6 @@ export default function AdminPage() {
         }
     };
 
-    // Удаление выбранных пользователей
     const handleDelete = async () => {
         if (selectedUsers.length === 0) return;
         try {
@@ -101,11 +94,18 @@ export default function AdminPage() {
 
     return (
         <div className="container mt-5">
-            <Notification
-                message={notification.message}
-                type={notification.type}
-                onClose={() => setNotification({ message: "", type: "info" })}
-            />
+            <div style={{
+                position: 'fixed',
+                top: '150px',
+                right: '150px',
+                zIndex: 9999
+            }}>
+                <Notification
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={() => setNotification({ message: "", type: "info" })}
+                />
+            </div>
             <h3 className="mb-4 text-center">Users</h3>
 
             <Toolbar

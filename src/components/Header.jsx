@@ -28,22 +28,26 @@ export default function Header() {
                             </svg>
                         </Link>
 
-                        <ul className="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
-                            <li>
-                                <Link to="/" className="nav-link text-secondary">
-                                    Home
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/dashboard" className="nav-link text-white">
-                                    Dashboard
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/profile" className="nav-link text-white">
-                                    Profile
-                                </Link>
-                            </li>
+                        <ul className="nav col-12 col-lg-auto my-2 justify-content-between my-md-0 text-small">
+                            <div className="d-flex">
+                                <li>
+                                    <Link to="/" className="nav-link text-secondary">
+                                        Home
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/dashboard" className="nav-link text-white">
+                                        Dashboard
+                                    </Link>
+                                </li>
+                            </div>
+                            <div className="d-flex">
+                                <li>
+                                    <Link to="/profile" className="nav-link text-white">
+                                        Profile
+                                    </Link>
+                                </li>
+                            </div>
                         </ul>
                     </div>
                 </div>

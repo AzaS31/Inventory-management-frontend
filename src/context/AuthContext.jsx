@@ -27,6 +27,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        if (token) {
+            localStorage.setItem("token", token);
+            window.history.replaceState({}, document.title, "/profile");
+        }
         fetchProfile();
     }, []);
 
@@ -34,14 +40,14 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         const res = await api.post("/auth/login", credentials);
         localStorage.setItem("token", res.data.token);
-        await fetchProfile(); 
+        await fetchProfile();
         return res;
     };
 
     const register = async (data) => {
         const res = await api.post("/auth/register", data);
         localStorage.setItem("token", res.data.token);
-        await fetchProfile(); 
+        await fetchProfile();
         return res;
     };
     const logout = async () => {
