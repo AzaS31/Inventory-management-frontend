@@ -84,6 +84,28 @@ export default function AdminPage() {
         }
     };
 
+    const handleBlock = async () => {
+        if (selectedUsers.length === 0) return;
+        try {
+            const res = await api.put("/users/active", { userIds: selectedUsers, isActive: false });
+            showNotification(`${res.data.count} user(s) blocked`, "warning");
+            fetchUsers();
+        } catch (err) {
+            showNotification(err.response?.data?.message || "Failed to block users", "error");
+        }
+    };
+
+    const handleUnblock = async () => {
+        if (selectedUsers.length === 0) return;
+        try {
+            const res = await api.put("/users/active", { userIds: selectedUsers, isActive: true });
+            showNotification(`${res.data.count} user(s) unblocked`, "success");
+            fetchUsers();
+        } catch (err) {
+            showNotification(err.response?.data?.message || "Failed to unblock users", "error");
+        }
+    };
+
     if (loading || loadingUsers) {
         return <p className="text-center mt-5">Loading...</p>;
     }
@@ -106,12 +128,15 @@ export default function AdminPage() {
                     onClose={() => setNotification({ message: "", type: "info" })}
                 />
             </div>
+
             <h3 className="mb-4 text-center">Users</h3>
 
             <Toolbar
                 selectedCount={selectedUsers.length}
                 onRoleChange={handleRoleChange}
                 onDelete={handleDelete}
+                onBlock={handleBlock}
+                onUnblock={handleUnblock}
             />
 
             <UsersTable

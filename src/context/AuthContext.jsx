@@ -5,13 +5,13 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [initialLoading, setInitialLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     const fetchProfile = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
             setUser(null);
-            setInitialLoading(false);
+            setLoading(false);
             return;
         }
 
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
             localStorage.removeItem("token");
         } finally {
-            setInitialLoading(false);
+            setLoading(false);
         }
     };
 
@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }) => {
         }
         fetchProfile();
     }, []);
-
 
     const login = async (credentials) => {
         const res = await api.post("/auth/login", credentials);
@@ -63,7 +62,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider
-            value={{ user, setUser, login, register, logout, initialLoading }}
+            value={{ user, setUser, login, register, logout, loading }}
         >
             {children}
         </AuthContext.Provider>

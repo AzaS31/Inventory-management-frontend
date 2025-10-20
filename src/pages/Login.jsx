@@ -34,7 +34,7 @@ export default function Login() {
     const API_URL = import.meta.env.VITE_API_URL;
 
     return (
-        <div className="d-flex justify-content-center align-items-start vh-100">
+        <div className="d-flex justify-content-center align-items-start">
             <div style={{ position: "fixed", top: "110px", left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
                 <Notification
                     message={notification.message}
