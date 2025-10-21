@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import InventoryTable from "../components/InventoryTable";
+import CategoryManager from "../components/CategoryManager";
 
 export default function ProfilePage() {
     const { user } = useContext(AuthContext);
@@ -17,10 +18,9 @@ export default function ProfilePage() {
                 <p><strong>Role:</strong> {user.role?.name || "USER"}</p>
             </div>
 
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4>My Inventories</h4>
-                <button className="btn btn-primary">Create Inventory</button>
-            </div>
+            <CategoryManager />
+
+            <h4>My Inventories</h4>
             <InventoryTable type="my" />
 
             <h4 className="mt-5">Inventories with Access</h4>

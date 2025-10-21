@@ -6,6 +6,16 @@ const InventoryService = {
         return res.data;
     },
 
+    getMy: async () => {
+        const res = await api.get("/inventories/my");
+        return res.data;
+    },
+
+    getShared: async () => {
+        const res = await api.get("/inventories/shared");
+        return res.data;
+    },
+
     getById: async (id) => {
         const res = await api.get(`/inventories/${id}`);
         return res.data;

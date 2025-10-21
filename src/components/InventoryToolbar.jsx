@@ -1,33 +1,39 @@
-export default function InventoryToolbar({ selectedCount, onCreate, onEdit, onDelete }) {
-    return (
-        <div className="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <button className="btn btn-success" onClick={onCreate}>
-                    Create
-                </button>
+import { Button, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
-                <button
-                    className="btn btn-primary ms-2"
+export default function InventoryToolbar({ selectedCount, onCreate, onEdit, onDelete }) {
+    const navigate = useNavigate();
+    
+    return (
+        <Row className="align-items-center mb-3">
+            <Col xs="auto">
+                <Button variant="primary" onClick={() => navigate("/inventories/create")}>
+                    Create
+                </Button>
+                <Button
+                    variant="outline-secondary"
+                    className="ms-2"
                     onClick={onEdit}
                     disabled={selectedCount !== 1}
                 >
                     Edit
-                </button>
-
-                <button
-                    className="btn btn-danger ms-2"
+                </Button>
+                <Button
+                    variant="outline-secondary"
+                    className="ms-2"
                     onClick={onDelete}
                     disabled={selectedCount === 0}
                 >
                     Delete
-                </button>
-            </div>
-
-            <small className="text-muted">
-                {selectedCount > 0
-                    ? `${selectedCount} selected`
-                    : "No inventories selected"}
-            </small>
-        </div>
+                </Button>
+            </Col>
+            <Col className="text-end">
+                <small className="text-muted">
+                    {selectedCount > 0
+                        ? `${selectedCount} selected`
+                        : "No inventories selected"}
+                </small>
+            </Col>
+        </Row>
     );
 }

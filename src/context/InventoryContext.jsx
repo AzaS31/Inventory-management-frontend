@@ -6,36 +6,34 @@ export const InventoryContext = createContext();
 
 export const InventoryProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
-    const [inventories, setInventories] = useState([]);
+    const [allInventories, setAllInventories] = useState([]);
     const [sharedInventories, setSharedInventories] = useState([]);
+    const [myInventories, setMyInventories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchMyInventories = async () => {
-        if (!user) return;
+    const fetchInventories = async (fetchFunction, setState, type = "inventories", requireAuth = true) => {
+        if (requireAuth && !user) return;
         setLoading(true);
+
         try {
-            const data = await InventoryService.getAll();
-            setInventories(data);
+            const data = await fetchFunction();
+            setState(data);
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to fetch inventories");
+            setError(err.response?.data?.message || `Failed to fetch ${type}`);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchSharedInventories = async () => {
-        if (!user) return;
-        setLoading(true);
-        try {
-            const data = await InventoryService.getAll();
-            setSharedInventories(data);
-        } catch (err) {
-            setError(err.response?.data?.message || "Failed to fetch shared inventories");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const fetchMyInventories = () =>
+        fetchInventories(InventoryService.getMy, setMyInventories, "my inventories", true);
+
+    const fetchSharedInventories = () =>
+        fetchInventories(InventoryService.getShared, setSharedInventories, "shared inventories", true);
+
+    const fetchAllInventories = () =>
+        fetchInventories(InventoryService.getAll, setAllInventories, "all inventories", false);
 
     const createInventory = async (data) => {
         try {
@@ -73,10 +71,12 @@ export const InventoryProvider = ({ children }) => {
     return (
         <InventoryContext.Provider
             value={{
-                inventories,
+                allInventories,
+                myInventories,
                 sharedInventories,
                 loading,
                 error,
+                fetchAllInventories,
                 fetchMyInventories,
                 fetchSharedInventories,
                 createInventory,
