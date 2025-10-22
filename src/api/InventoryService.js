@@ -16,6 +16,16 @@ const InventoryService = {
         return res.data;
     },
 
+    getUserInventories: async (userId) => {
+        const res = await api.get(`/inventories/user/${userId}`);
+        return res.data;
+    },
+
+    getSharedWithUserInventories: async (userId) => {
+        const res = await api.get(`/inventories/user/${userId}/shared`);
+        return res.data;
+    },
+
     getById: async (id) => {
         const res = await api.get(`/inventories/${id}`);
         return res.data;

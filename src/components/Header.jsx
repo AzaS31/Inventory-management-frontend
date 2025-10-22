@@ -31,7 +31,7 @@ export default function Header() {
 
                         {user && (
                             <>
-                                <span className="text-white">Hi, {user.username}</span>
+                                <span className="text-white">{user.username}</span>
 
                                 <div
                                     className="rounded-circle bg-secondary"

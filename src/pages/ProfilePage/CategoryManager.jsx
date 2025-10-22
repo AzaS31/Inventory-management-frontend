@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useCategory } from "../context/CategoryContext";
-import Pagination from "./Pagination";
+import { useCategory } from "../../context/CategoryContext";
+import Pagination from "../../components/Pagination";
 import { Table, Form, Button, InputGroup, Row, Col } from "react-bootstrap";
 
 export default function CategoryManager() {
@@ -113,7 +113,7 @@ export default function CategoryManager() {
                 </Col>
             </Row>
 
-            <Table striped bordered hover responsive>
+            <Table bordered hover responsive>
                 <thead className="table-light">
                     <tr>
                         <th>

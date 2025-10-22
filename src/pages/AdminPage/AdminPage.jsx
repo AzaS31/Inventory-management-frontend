@@ -1,19 +1,19 @@
 import { useEffect, useState, useContext, useCallback } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
+import { useUsers } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import Notification from "../components/Notification";
-import Toolbar from "../components/Toolbar";
-import UsersTable from "../components/UsersTable";
-import api from "../api/axios";
+import Notification from "../../components/Notification";
+import Toolbar from "./Toolbar";
+import UsersTable from "./UsersTable";
 
 export default function AdminPage() {
     const { user, loading } = useContext(AuthContext);
+    const { users, fetchAllUsers, changeRole, setActive, deleteUsers, loadingUsers } = useUsers();
     const navigate = useNavigate();
-    const [users, setUsers] = useState([]);
+
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [notification, setNotification] = useState({ message: "", type: "info" });
-    const [loadingUsers, setLoadingUsers] = useState(false);
 
     const showNotification = useCallback((message, type = "info") => {
         setNotification({ message, type });
@@ -36,73 +36,58 @@ export default function AdminPage() {
         setSelectAll(!selectAll);
     };
 
-    const fetchUsers = useCallback(async () => {
-        setLoadingUsers(true);
-        try {
-            const res = await api.get("/users");
-            setUsers(res.data);
-            setSelectedUsers([]);
-            setSelectAll(false);
-        } catch (err) {
-            showNotification(err.response?.data?.message || err.message || "Failed to load users.", "error");
-        } finally {
-            setLoadingUsers(false);
-        }
-    }, [showNotification]);
-
     useEffect(() => {
         if (!loading) {
             if (!user) return;
             if (user.role?.name !== "ADMIN") {
                 navigate("/", { replace: true });
             } else {
-                fetchUsers();
+                fetchAllUsers().catch(err => showNotification(err.message || "Failed to load users", "error"));
             }
         }
-    }, [loading, user, navigate, fetchUsers]);
+    }, [loading, user, navigate, fetchAllUsers, showNotification]);
 
     const handleRoleChange = async (roleId) => {
         if (selectedUsers.length === 0) return;
         try {
-            const res = await api.put("/users/role", { userIds: selectedUsers, roleId });
-            showNotification(`${res.data.count} user(s) roles updated`, "success");
-            fetchUsers();
+            const res = await changeRole(selectedUsers, roleId);
+            showNotification(`${res.count} user(s) roles updated`, "success");
+            setSelectedUsers([]);
         } catch (err) {
-            showNotification(err.response?.data?.message || "Failed to update roles", "error");
+            showNotification(err.message || "Failed to update roles", "error");
         }
     };
 
     const handleDelete = async () => {
         if (selectedUsers.length === 0) return;
         try {
-            const res = await api.post("/users/delete", { userIds: selectedUsers });
-            showNotification(`${res.data.count} user(s) deleted`, "success");
+            const res = await deleteUsers(selectedUsers);
+            showNotification(`${res.count} user(s) deleted`, "success");
             setSelectedUsers([]);
-            fetchUsers();
         } catch (err) {
-            showNotification(err.response?.data?.message || "Failed to delete users", "error");
+            showNotification(err.message || "Failed to delete users", "error");
         }
     };
 
     const handleBlock = async () => {
         if (selectedUsers.length === 0) return;
         try {
-            const res = await api.put("/users/active", { userIds: selectedUsers, isActive: false });
-            showNotification(`${res.data.count} user(s) blocked`, "warning");
-            fetchUsers();
+            const res = await setActive(selectedUsers, false);
+            showNotification(`${res.count} user(s) blocked`, "warning");
+            setSelectedUsers([]);
         } catch (err) {
-            showNotification(err.response?.data?.message || "Failed to block users", "error");
+            showNotification(err.message || "Failed to block users", "error");
         }
     };
 
     const handleUnblock = async () => {
         if (selectedUsers.length === 0) return;
         try {
-            const res = await api.put("/users/active", { userIds: selectedUsers, isActive: true });
-            showNotification(`${res.data.count} user(s) unblocked`, "success");
-            fetchUsers();
+            const res = await setActive(selectedUsers, true);
+            showNotification(`${res.count} user(s) unblocked`, "success");
+            setSelectedUsers([]);
         } catch (err) {
-            showNotification(err.response?.data?.message || "Failed to unblock users", "error");
+            showNotification(err.message || "Failed to unblock users", "error");
         }
     };
 
@@ -116,12 +101,7 @@ export default function AdminPage() {
 
     return (
         <div className="container mt-5">
-            <div style={{
-                position: 'fixed',
-                top: '150px',
-                right: '150px',
-                zIndex: 9999
-            }}>
+            <div style={{ position: 'fixed', top: '150px', right: '150px', zIndex: 9999 }}>
                 <Notification
                     message={notification.message}
                     type={notification.type}

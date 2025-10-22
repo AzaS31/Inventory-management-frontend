@@ -1,13 +1,10 @@
 import { Button, Row, Col } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 
 export default function InventoryToolbar({ selectedCount, onCreate, onEdit, onDelete }) {
-    const navigate = useNavigate();
-    
     return (
         <Row className="align-items-center mb-3">
             <Col xs="auto">
-                <Button variant="primary" onClick={() => navigate("/inventories/create")}>
+                <Button variant="primary" onClick={onCreate}>
                     Create
                 </Button>
                 <Button

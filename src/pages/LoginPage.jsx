@@ -3,7 +3,7 @@ import { useState, useContext, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 import Notification from "../components/Notification";
 
-export default function Login() {
+export default function LoginPage() {
     const navigate = useNavigate();
     const { login } = useContext(AuthContext);
 

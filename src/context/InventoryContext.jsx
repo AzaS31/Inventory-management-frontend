@@ -7,8 +7,10 @@ export const InventoryContext = createContext();
 export const InventoryProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
     const [allInventories, setAllInventories] = useState([]);
-    const [sharedInventories, setSharedInventories] = useState([]);
+    const [sharedWithMeInventories, setSharedWithMeInventories] = useState([]);
     const [myInventories, setMyInventories] = useState([]);
+    const [userInventories, setUserInventories] = useState([]);
+    const [sharedWithUserInventories, setSharedWithUserInventories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -29,36 +31,71 @@ export const InventoryProvider = ({ children }) => {
     const fetchMyInventories = () =>
         fetchInventories(InventoryService.getMy, setMyInventories, "my inventories", true);
 
-    const fetchSharedInventories = () =>
-        fetchInventories(InventoryService.getShared, setSharedInventories, "shared inventories", true);
+    const fetchSharedWithMeInventories = () =>
+        fetchInventories(InventoryService.getShared, setSharedWithMeInventories, "shared with me inventories", true);
 
     const fetchAllInventories = () =>
         fetchInventories(InventoryService.getAll, setAllInventories, "all inventories", false);
 
+    const fetchUserInventories = (targetUserId) => {
+        if (!targetUserId) return;
+        fetchInventories(
+            () => InventoryService.getUserInventories(targetUserId),
+            setUserInventories,
+            "user inventories",
+            false
+        );
+    };
+
+    const fetchSharedWithUserInventories = (targetUserId) => {
+        if (!targetUserId) return;
+        fetchInventories(() => InventoryService.getSharedWithUserInventories(targetUserId), setSharedWithUserInventories, "shared with user inventories", false);
+    }
+
     const createInventory = async (data) => {
         try {
             const newInv = await InventoryService.create(data);
-            setInventories((prev) => [...prev, newInv]);
+            setMyInventories((prev) => [...prev, newInv]);
+            return newInv;
         } catch (err) {
             setError(err.response?.data?.message || "Failed to create inventory");
+            throw err;
         }
     };
 
-    const updateInventory = async (id, data) => {
+    const getInventoryById = async (id) => {
+        try {
+            const inventory = await InventoryService.getById(id);
+            return inventory;
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to fetch inventory");
+            throw err;
+        }
+    };
+
+    const updateInventoryCommon = async (id, data, setState) => {
         try {
             const updated = await InventoryService.update(id, data);
-            setInventories((prev) =>
-                prev.map((inv) => (inv.id === id ? updated : inv))
-            );
+            setState((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
+            return updated;
         } catch (err) {
             setError(err.response?.data?.message || "Failed to update inventory");
+            throw err;
         }
+    };
+
+    const updateMyInventory = async (id, data) => {
+        return updateInventoryCommon(id, data, setMyInventories);
+    };
+
+    const updateSharedWithMeInventory = async (id, data) => {
+        return updateInventoryCommon(id, data, setSharedWithMeInventories);
     };
 
     const deleteInventory = async (id) => {
         try {
             await InventoryService.delete(id);
-            setInventories((prev) => prev.filter((inv) => inv.id !== id));
+            setMyInventories((prev) => prev.filter((inv) => inv.id !== id));
         } catch (err) {
             setError(err.response?.data?.message || "Failed to delete inventory");
         }
@@ -73,14 +110,20 @@ export const InventoryProvider = ({ children }) => {
             value={{
                 allInventories,
                 myInventories,
-                sharedInventories,
+                sharedWithMeInventories,
+                userInventories,
+                sharedWithUserInventories,
                 loading,
                 error,
                 fetchAllInventories,
                 fetchMyInventories,
-                fetchSharedInventories,
+                fetchSharedWithMeInventories,
+                fetchUserInventories,
+                fetchSharedWithUserInventories,
                 createInventory,
-                updateInventory,
+                getInventoryById,
+                updateMyInventory,
+                updateSharedWithMeInventory,
                 deleteInventory,
             }}
         >

@@ -1,12 +1,15 @@
 import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-import InventoryTable from "../components/InventoryTable";
-import CategoryManager from "../components/CategoryManager";
+import { AuthContext } from "../../context/AuthContext";
+import MyInventories from "./MyInventories";
+import SharedWithMeInventories from "./SharedWithMeInventories";
+import CategoryManager from "./CategoryManager";
 
 export default function ProfilePage() {
     const { user } = useContext(AuthContext);
 
     if (!user) return <p>Please log in.</p>;
+
+    const isAdmin = user.role?.name === "ADMIN";
 
     return (
         <div className="container py-4">
@@ -18,13 +21,13 @@ export default function ProfilePage() {
                 <p><strong>Role:</strong> {user.role?.name || "USER"}</p>
             </div>
 
-            <CategoryManager />
+             {isAdmin && <CategoryManager />}
 
-            <h4>My Inventories</h4>
-            <InventoryTable type="my" />
+            <h4 className="mt-5 mb-3">My Inventories</h4>
+            <MyInventories />
 
-            <h4 className="mt-5">Inventories with Access</h4>
-            <InventoryTable type="shared" />
+            <h4 className="mt-5 mb-3">Inventories with Access</h4>
+            <SharedWithMeInventories />
         </div>
     );
 }
