@@ -8,6 +8,7 @@ import { UserProvider } from './context/UserContext.jsx';
 import { InventoryProvider } from "./context/InventoryContext.jsx";
 import { CategoryProvider } from "./context/CategoryContext";
 import { ItemProvider } from './context/ItemContext.jsx';
+import { CustomFieldProvider } from './context/CustomFieldContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -17,7 +18,9 @@ createRoot(document.getElementById('root')).render(
           <InventoryProvider>
             <CategoryProvider>
               <ItemProvider>
-                <App />
+                <CustomFieldProvider>
+                  <App />
+                </CustomFieldProvider>
               </ItemProvider>
             </CategoryProvider>
           </InventoryProvider>

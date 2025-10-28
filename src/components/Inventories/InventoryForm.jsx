@@ -7,6 +7,7 @@ export default function InventoryForm({
     isPublic,
     categoryId,
     categories,
+    customIdFormat,
     onChange,
     onSubmit,
     onCancel,
@@ -19,15 +20,16 @@ export default function InventoryForm({
                 isPublic={isPublic}
                 categoryId={categoryId}
                 categories={categories}
+                customIdFormat={customIdFormat}
                 onChange={onChange}
             />
 
             <div className="d-flex justify-content-between mt-3">
-                <Button variant="secondary" onClick={onCancel}>
-                    Cancel
-                </Button>
                 <Button type="submit" variant="primary">
                     Create
+                </Button>
+                <Button variant="secondary" onClick={onCancel}>
+                    Cancel
                 </Button>
             </div>
         </Form>

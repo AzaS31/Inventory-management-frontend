@@ -1,11 +1,13 @@
 import { Form } from "react-bootstrap";
+import CustomIdFormatBuilder from "./CustomIdFormatBuilder";
 
 export default function InventoryDetailsFields({
     title,
     description,
-    isPublic,
+    access = "public",
     categoryId,
     categories,
+    customIdFormat,
     onChange,
 }) {
     return (
@@ -47,13 +49,20 @@ export default function InventoryDetailsFields({
                 </Form.Select>
             </Form.Group>
 
+            <CustomIdFormatBuilder
+                value={customIdFormat}
+                onChange={(updated) => onChange("customIdFormat", updated)}
+            />
+
             <Form.Group className="mb-3">
-                <Form.Check
-                    type="checkbox"
-                    label="Make Public"
-                    checked={isPublic}
-                    onChange={(e) => onChange("isPublic", e.target.checked)}
-                />
+                <Form.Label>Access</Form.Label>
+                <Form.Select
+                    value={access}
+                    onChange={(e) => onChange("access", e.target.value)}
+                >
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </Form.Select>
             </Form.Group>
         </>
     );

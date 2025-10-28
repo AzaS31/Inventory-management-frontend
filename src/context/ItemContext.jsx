@@ -1,62 +1,58 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useCallback } from "react";
 import ItemService from "../api/ItemService";
 
-export const ItemContext = createContext();
+const ItemContext = createContext();
 
 export const ItemProvider = ({ children }) => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
 
-    const fetchItems = async (inventoryId) => {
+    const fetchItems = useCallback(async (inventoryId) => {
         setLoading(true);
         try {
             const data = await ItemService.getAll(inventoryId);
             setItems(data);
-        } catch (err) {
-            setError(err.response?.data?.error || "Failed to load items");
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const createItem = async (inventoryId, itemData) => {
-        try {
-            const newItem = await ItemService.create(inventoryId, itemData);
-            setItems((prev) => [newItem, ...prev]);
-        } catch (err) {
-            setError(err.response?.data?.error || "Failed to create item");
-        }
-    };
+    const createItem = useCallback(async (inventoryId, itemData, customFieldValues) => {
+        const newItem = await ItemService.create(inventoryId, itemData, customFieldValues);
+        setItems((prev) => [newItem, ...prev]);
+        return newItem;
+    }, []);
 
-    const updateItem = async (inventoryId, itemId, data) => {
-        try {
-            const updated = await ItemService.update(inventoryId, itemId, data);
-            setItems((prev) => prev.map((i) => (i.id === itemId ? updated : i)));
-        } catch (err) {
-            setError(err.response?.data?.error || "Failed to update item");
-        }
-    };
+    const updateItem = useCallback(async (inventoryId, id, expectedVersion, updateData, customFieldValues) => {
+        const updated = await ItemService.update(inventoryId, id, expectedVersion, updateData, customFieldValues);
+        setItems((prev) => prev.map((item) => (item.id === id ? updated : item)));
+        return updated;
+    }, []);
 
-    const deleteItem = async (inventoryId, itemId) => {
-        try {
-            await ItemService.delete(inventoryId, itemId);
-            setItems((prev) => prev.filter((i) => i.id !== itemId));
-        } catch (err) {
-            setError(err.response?.data?.error || "Failed to delete item");
-        }
-    };
+    const deleteItem = useCallback(async (inventoryId, id) => {
+        await ItemService.delete(inventoryId, id);
+        setItems((prev) => prev.filter((item) => item.id !== id));
+    }, []);
+
+    const addLike = useCallback(async (id) => {
+        await ItemService.addLike(id);
+        setItems((prev) =>
+            prev.map((item) =>
+                item.id === id ? { ...item, _count: { likes: (item._count?.likes || 0) + 1 } } : item
+            )
+        );
+    }, []);
 
     return (
         <ItemContext.Provider
             value={{
                 items,
                 loading,
-                error,
                 fetchItems,
                 createItem,
                 updateItem,
                 deleteItem,
+                addLike,
             }}
         >
             {children}
@@ -64,4 +60,4 @@ export const ItemProvider = ({ children }) => {
     );
 };
 
-export const useItems = () => useContext(ItemContext);
+export const useItem = () => useContext(ItemContext);

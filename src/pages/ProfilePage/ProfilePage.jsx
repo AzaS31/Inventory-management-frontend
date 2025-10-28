@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import MyInventories from "./MyInventories";
 import SharedWithMeInventories from "./SharedWithMeInventories";
-import CategoryManager from "./CategoryManager";
 
 export default function ProfilePage() {
     const { user } = useContext(AuthContext);
@@ -20,8 +19,6 @@ export default function ProfilePage() {
                 <p><strong>Email:</strong> {user.email}</p>
                 <p><strong>Role:</strong> {user.role?.name || "USER"}</p>
             </div>
-
-             {isAdmin && <CategoryManager />}
 
             <h4 className="mt-5 mb-3">My Inventories</h4>
             <MyInventories />

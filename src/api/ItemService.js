@@ -1,28 +1,40 @@
 import api from "./axios";
 
 const ItemService = {
-    getAll: async (inventoryId) => {
+    async getAll(inventoryId) {
         const res = await api.get(`/items/${inventoryId}`);
         return res.data;
     },
 
-    getById: async (inventoryId, itemId) => {
-        const res = await api.get(`/items/${inventoryId}/${itemId}`);
+    async getById(inventoryId, id) {
+        const res = await api.get(`/items/${inventoryId}/${id}`);
         return res.data;
     },
 
-    create: async (inventoryId, data) => {
-        const res = await api.post(`/items/${inventoryId}/items`, data);
+    async create(inventoryId, itemData, customFieldValues) {
+        const res = await api.post(`/items/${inventoryId}/items`, {
+            itemData,
+            customFieldValues,
+        });
         return res.data;
     },
 
-    update: async (inventoryId, itemId, data) => {
-        const res = await api.put(`/items/${inventoryId}/${itemId}`, data);
+    async update(inventoryId, id, expectedVersion, updateData, customFieldValues) {
+        const res = await api.put(`/items/${inventoryId}/${id}`, {
+            expectedVersion,
+            updateData,
+            customFieldValues,
+        });
         return res.data;
     },
 
-    delete: async (inventoryId, itemId) => {
-        const res = await api.delete(`/items/${inventoryId}/${itemId}`);
+    async delete(inventoryId, id) {
+        const res = await api.delete(`/items/${inventoryId}/${id}`);
+        return res.data;
+    },
+
+    async addLike(id) {
+        const res = await api.post(`/items/${id}/like`);
         return res.data;
     },
 };

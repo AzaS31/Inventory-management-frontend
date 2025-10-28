@@ -6,7 +6,7 @@ import UserProfilePage from "./pages/UserProfilePage/UserProfilePage";
 import Profile from "./pages/ProfilePage/ProfilePage";
 import HomePage from "./pages/HomePage/HomePage";
 import AdminPage from "./pages/AdminPage/AdminPage";
-import InventoryPage from "./pages/Inventories/InventoryPage";
+import InventoryPage from "./pages/InventoryPage/InventoryPage";
 import InventoryCreatePage from "./pages/Inventories/InventoryCreatePage";
 import InventoryEditPage from "./pages/Inventories/InventoryEditPage";
 import Layout from "./components/Layout";
@@ -21,7 +21,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/inventories/:id" element={<InventoryPage />} />
-        <Route path="/users/:id" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
+        <Route path="/users/:id" element={<UserProfilePage />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
         <Route path="/inventories/create" element={<ProtectedRoute><InventoryCreatePage /></ProtectedRoute>} />

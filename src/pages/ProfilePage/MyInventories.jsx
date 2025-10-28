@@ -3,7 +3,7 @@ import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useInventory } from "../../context/InventoryContext";
 import InventoryTableBase from "../../components/Inventories/InventoryTableBase";
-import InventoryToolbar from "../../components/Inventories/InventoryToolbar";
+import TableToolbar from "../../components/Inventories/TableToolbar";
 
 export default function MyInventories() {
     const { myInventories, fetchMyInventories, deleteInventory, loading } = useInventory();
@@ -53,7 +53,7 @@ export default function MyInventories() {
 
     return (
         <>
-            <InventoryToolbar
+            <TableToolbar
                 selectedCount={selected.length}
                 onCreate={handleCreate}
                 onEdit={handleEdit}

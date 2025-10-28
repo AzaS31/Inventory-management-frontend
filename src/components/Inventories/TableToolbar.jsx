@@ -1,6 +1,12 @@
 import { Button, Row, Col } from "react-bootstrap";
 
-export default function InventoryToolbar({ selectedCount, onCreate, onEdit, onDelete }) {
+export default function TableToolbar({
+    selectedCount,
+    onCreate,
+    onEdit,
+    onDelete,
+    label, 
+}) {
     return (
         <Row className="align-items-center mb-3">
             <Col xs="auto">
@@ -28,7 +34,7 @@ export default function InventoryToolbar({ selectedCount, onCreate, onEdit, onDe
                 <small className="text-muted">
                     {selectedCount > 0
                         ? `${selectedCount} selected`
-                        : "No inventories selected"}
+                        : `No ${label} selected`}
                 </small>
             </Col>
         </Row>

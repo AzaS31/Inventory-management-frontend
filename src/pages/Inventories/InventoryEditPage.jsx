@@ -44,7 +44,6 @@ export default function InventoryEditPage() {
                     categoryId: data.categoryId || "",
                 });
 
-                // Определяем, является ли текущий пользователь владельцем
                 setIsOwner(data.ownerId === user?.id);
             } catch (err) {
                 console.error("Failed to load inventory:", err);
