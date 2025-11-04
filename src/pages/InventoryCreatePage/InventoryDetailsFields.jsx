@@ -1,15 +1,19 @@
-import { Form } from "react-bootstrap";
-import CustomIdFormatBuilder from "./CustomIdFormatBuilder";
+import { Form, Row, Col } from "react-bootstrap";
+import CustomIdFormatBuilder from "../../components/CustomIdFormatBuilder";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function InventoryDetailsFields({
     title,
     description,
-    access = "public",
+    isPublic,
     categoryId,
     categories,
     customIdFormat,
     onChange,
 }) {
+    const access = isPublic ? "public" : "private";
+
     return (
         <>
             <Form.Group className="mb-3">
@@ -24,14 +28,28 @@ export default function InventoryDetailsFields({
             </Form.Group>
 
             <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
-                <Form.Control
-                    as="textarea"
-                    rows={3}
-                    value={description}
-                    onChange={(e) => onChange("description", e.target.value)}
-                    placeholder="Describe your collection"
-                />
+                <Form.Label>Description (Markdown supported)</Form.Label>
+                <Row>
+                    <Col md={6}>
+                        <Form.Control
+                            as="textarea"
+                            rows={6}
+                            value={description}
+                            onChange={(e) => onChange("description", e.target.value)}
+                            placeholder="Describe your collection in Markdown"
+                        />
+                    </Col>
+                    <Col md={6}>
+                        <div
+                            className="border p-2"
+                            style={{ height: "100%", overflowY: "auto", backgroundColor: "#f8f9fa" }}
+                        >
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {description || "Preview will appear here..."}
+                            </ReactMarkdown>
+                        </div>
+                    </Col>
+                </Row>
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -58,7 +76,10 @@ export default function InventoryDetailsFields({
                 <Form.Label>Access</Form.Label>
                 <Form.Select
                     value={access}
-                    onChange={(e) => onChange("access", e.target.value)}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        onChange("isPublic", val === "public");
+                    }}
                 >
                     <option value="public">Public</option>
                     <option value="private">Private</option>

@@ -7,8 +7,11 @@ import Profile from "./pages/ProfilePage/ProfilePage";
 import HomePage from "./pages/HomePage/HomePage";
 import AdminPage from "./pages/AdminPage/AdminPage";
 import InventoryPage from "./pages/InventoryPage/InventoryPage";
-import InventoryCreatePage from "./pages/Inventories/InventoryCreatePage";
-import InventoryEditPage from "./pages/Inventories/InventoryEditPage";
+import InventoryCreatePage from "./pages/InventoryCreatePage/InventoryCreatePage";
+import ItemCreatePage from "./pages/ItemCreatePage/ItemCreatePage";
+import ItemEditPage from "./pages/ItemEditPage/ItemEditPage";
+import ItemPage from "./pages/ItemPage/ItemPage";
+import SearchResultPage from "./pages/SearchResultPage/SearchResultPage";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -20,12 +23,15 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/inventories/:id" element={<InventoryPage />} />
+        <Route path="/inventory/:id" element={<InventoryPage />} />
         <Route path="/users/:id" element={<UserProfilePage />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
-        <Route path="/inventories/create" element={<ProtectedRoute><InventoryCreatePage /></ProtectedRoute>} />
-        <Route path="/inventories/:id/edit" element={<ProtectedRoute><InventoryEditPage /></ProtectedRoute>} />
+        <Route path="/inventory/create" element={<ProtectedRoute><InventoryCreatePage /></ProtectedRoute>} />
+        <Route path="/inventory/:inventoryId/item/create" element={<ProtectedRoute><ItemCreatePage /></ProtectedRoute>} />
+        <Route path="/inventory/:inventoryId/item/:itemId/edit" element={<ProtectedRoute><ItemEditPage /></ProtectedRoute>} />
+        <Route path="/inventory/:inventoryId/item/:itemId" element={<ItemPage />} />
+        <Route path="/search" element={<SearchResultPage />} />
       </Routes>
     </Layout>
   );

@@ -1,114 +1,104 @@
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { Table } from "react-bootstrap";
+import { Table, Form } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import Pagination from "./Pagination";
 
-export default function ItemTable({ items = [], onSelectionChange }) {
-    const [selectedIds, setSelectedIds] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
+export default function ItemTable({
+    items = [],
+    customFields = [],
+    selectable = false,
+    selected = [],
+    onSelect = () => { },
+    onSelectAll = () => { },
+}) {
     const navigate = useNavigate();
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const totalItems = items.length;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const pagedItems = items.slice(startIndex, endIndex);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const displayedItems = items.slice(indexOfFirstItem, indexOfLastItem);
 
-    const handleSelect = (id) => {
-        setSelectedIds((prev) => {
-            const newSelection = prev.includes(id)
-                ? prev.filter((x) => x !== id)
-                : [...prev, id];
+    const allSelected =
+        displayedItems.length > 0 && selected.length === displayedItems.length;
 
-            onSelectionChange?.(newSelection);
-            return newSelection;
-        });
-    };
+    const visibleFields = customFields.filter(f => f.showInTable);
 
-    const handleSelectAll = (e) => {
-        let newSelection = [];
-        if (e.target.checked) {
-            newSelection = pagedItems.map((i) => i.id);
-        }
-        setSelectedIds(newSelection);
-        onSelectionChange?.(newSelection);
-    };
+    if (!items.length)
+        return <p className="text-center text-muted mt-4">No items to display.</p>;
 
     return (
-        <div>
-   <Table bordered hover responsive>
-    <thead>
-        <tr>
-            <th style={{ width: "40px" }}>
-                <input
-                    type="checkbox"
-                    onChange={handleSelectAll}
-                    checked={
-                        pagedItems.length > 0 &&
-                        selectedIds.length === pagedItems.length
-                    }
-                />
-            </th>
-            <th>Custom ID</th>
-            <th>Title</th>
-            <th>Created By</th>
-            <th>Likes</th>
-            <th>Status</th>
-            <th>Created At</th>
-        </tr>
-    </thead>
-    <tbody>
-        {pagedItems.length === 0 ? (
-            <tr>
-                <td colSpan={7} className="text-center text-muted py-3">
-                    No items found
-                </td>
-            </tr>
-        ) : (
-            pagedItems.map((item) => (
-                <tr
-                    key={item.id}
-                    onClick={(e) => {
-                         if (e.target.type !== "checkbox") {
+        <div className="mt-3">
+            <Table bordered hover responsive>
+                <thead className="table-light">
+                    <tr>
+                        {selectable && (
+                            <th style={{ width: "50px" }}>
+                                <Form.Check
+                                    type="checkbox"
+                                    checked={allSelected}
+                                    onChange={(e) => onSelectAll(e.target.checked)}
+                                />
+                            </th>
+                        )}
+                        <th>#</th>
+                        <th>Custom ID</th>
+                        <th>Title</th>
+                        {visibleFields.map(f => (
+                            <th key={f.id}>{f.name}</th>
+                        ))}
+                        <th>Created By</th>
+                        <th>Likes</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {displayedItems.map((item, index) => (
+                        <tr
+                            key={item.id}
+                            style={{ cursor: "pointer" }}
+                            onClick={(e) => {
+                                if (e.target.type !== "checkbox") {
                                     navigate(`/inventory/${item.inventoryId}/item/${item.id}`);
                                 }
-                    }} 
-                    className={
-                        selectedIds.includes(item.id)
-                            ? "table-primary"
-                            : ""
-                    }
-                    style={{ cursor: "pointer" }} 
-                >
-                    <td>
-                        <input
-                            type="checkbox"
-                            checked={selectedIds.includes(item.id)}
-                            onChange={() => handleSelect(item.id)}
-                            onClick={(e) => {
-                                e.stopPropagation(); 
-                                handleSelect(item.id);
                             }}
-                        />
-                    </td>
-                    <td>{item.customId}</td>
-                    <td>{item.name || "(No title)"}</td>
-                    <td>{item.creator?.username || "—"}</td>
-                    <td>{item.likesCount || 0}</td>
-                    <td>{item.status}</td>
-                    <td>{new Date(item.createdAt).toLocaleDateString()}</td>
-                </tr>
-            ))
-        )}
-    </tbody>
-</Table>
+                        >
+                            {selectable && (
+                                <td>
+                                    <Form.Check
+                                        type="checkbox"
+                                        checked={selected.includes(item.id)}
+                                        onChange={() => onSelect(item.id)}
+                                    />
+                                </td>
+                            )}
+                            <td>{indexOfFirstItem + index + 1}</td>
+                            <td>{item.customId || "-"}</td>
+                            <td>{item.name || "(No title)"}</td>
+                            {visibleFields.map(f => {
+                                const valueObj = item.customValues?.find(v => v.customFieldId === f.id);
+                                return (
+                                    <td key={f.id}>
+                                        {valueObj?.value ?? "-"}
+                                    </td>
+                                );
+                            })}
+                            <td>{item.creator?.username || "—"}</td>
+                            <td>{item.likesCount || 0}</td>
+                            <td>{new Date(item.createdAt).toLocaleString()}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
 
-            <Pagination
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-            />
+            <div className="d-flex justify-content-end">
+                <Pagination
+                    totalItems={items.length}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                />
+            </div>
         </div>
     );
 }

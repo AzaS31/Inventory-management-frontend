@@ -1,4 +1,4 @@
-import { Table, Form } from "react-bootstrap";
+import { Table, Form, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 export default function UsersTable({
@@ -9,6 +9,25 @@ export default function UsersTable({
     selectAll = false,
 }) {
     const navigate = useNavigate();
+
+    const getRoleName = (roleId) => {
+        switch (roleId) {
+            case 1:
+                return "CREATOR";
+            case 2:
+                return "ADMIN";
+            default:
+                return "N/A";
+        }
+    };
+
+    const getStatusBadge = (isActive) => {
+        return isActive ? (
+            <Badge bg="success">Active</Badge>
+        ) : (
+            <Badge bg="secondary">Inactive</Badge>
+        );
+    };
 
     return (
         <Table bordered hover responsive className="align-middle text-center">
@@ -29,34 +48,28 @@ export default function UsersTable({
                 </tr>
             </thead>
             <tbody>
-                {users.map((u, i) => (
+                {users.map((user, index) => (
                     <tr
-                        key={u.id}
+                        key={user.id}
                         style={{ cursor: "pointer" }}
                         onClick={(e) => {
                             if (e.target.type !== "checkbox") {
-                                navigate(`/users/${u.id}`);
+                                navigate(`/users/${user.id}`);
                             }
                         }}
                     >
                         <td>
                             <Form.Check
                                 type="checkbox"
-                                checked={selectedUsers.includes(u.id)}
-                                onChange={() => onToggleUser(u.id)}
+                                checked={selectedUsers.includes(user.id)}
+                                onChange={() => onToggleUser(user.id)}
                             />
                         </td>
-                        <td>{i + 1}</td>
-                        <td>{u.username}</td>
-                        <td>{u.email}</td>
-                        <td>
-                            {u.roleId === 1
-                                ? "CREATOR"
-                                : u.roleId === 2
-                                    ? "ADMIN"
-                                    : "N/A"}
-                        </td>
-                        <td>{u.isActive ? "Active" : "Inactive"}</td>
+                        <td>{index + 1}</td>
+                        <td>{user.username}</td>
+                        <td>{user.email}</td>
+                        <td>{getRoleName(user.roleId)}</td>
+                        <td>{getStatusBadge(user.isActive)}</td>
                     </tr>
                 ))}
             </tbody>

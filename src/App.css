@@ -1,6 +1,29 @@
 .no-focus-outline:focus {
   box-shadow: none !important;
-  border-color: #ced4da !important; 
+  border-color: #ced4da !important;
   outline: none !important;
+}
+
+.custom-breadcrumb-link a {
+  color: black;
+  text-decoration: none;
+}
+
+.custom-breadcrumb-link a:hover {
+  color: #007bff;
+}
+
+.no-bullets {
+  list-style: none;
+  padding-left: 0;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+.tooltip {
+  position: fixed !important;
+  will-change: transform;
 }
 

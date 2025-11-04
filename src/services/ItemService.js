@@ -1,6 +1,6 @@
-import api from "./axios";
+import api from "../api/axios";
 
-const ItemService = {
+export const ItemService = {
     async getAll(inventoryId) {
         const res = await api.get(`/items/${inventoryId}`);
         return res.data;
@@ -33,10 +33,9 @@ const ItemService = {
         return res.data;
     },
 
-    async addLike(id) {
-        const res = await api.post(`/items/${id}/like`);
+    async deleteBatch(inventoryId, ids = []) {
+        const res = await api.post(`/items/${inventoryId}/delete-batch`, { ids });
         return res.data;
-    },
+    }
 };
 
-export default ItemService;

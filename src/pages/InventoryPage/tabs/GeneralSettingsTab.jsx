@@ -39,8 +39,7 @@ const GeneralSettingsTab = ({ inventory }) => {
         }
     };
 
-    // Разрешено редактирование только владельцу и администратору
-    const canEdit = user?.id === inventory.ownerId || user?.role === "ADMIN";
+    const canEdit = user?.id === inventory.ownerId || user?.role?.name === "ADMIN";
 
     return (
         <div className="p-3">

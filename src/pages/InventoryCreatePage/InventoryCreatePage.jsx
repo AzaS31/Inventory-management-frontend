@@ -3,7 +3,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useInventory } from "../../context/InventoryContext";
 import { useCategory } from "../../context/CategoryContext";
-import InventoryForm from "../../components/Inventories/InventoryForm";
+import InventoryForm from "./InventoryForm";
 
 export default function InventoryCreatePage() {
     const { createInventory } = useInventory();
@@ -12,7 +12,7 @@ export default function InventoryCreatePage() {
     const [form, setForm] = useState({
         title: "",
         description: "",
-        isPublic: false,
+        isPublic: true,
         categoryId: "",
     });
 
@@ -28,9 +28,19 @@ export default function InventoryCreatePage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        const hasUniquePart = form.customIdFormat?.some(part =>
+            ["SEQ", "GUID", "RAND6", "RAND9", "RAND20", "RAND32"].includes(part.type)
+        );
+
+        if (form.customIdFormat && !hasUniquePart) {
+            alert("Custom ID format must include at least one unique part (SEQ, GUID, or RAND).");
+            return;
+        }
+
         try {
             const newInventory = await createInventory(form);
-            navigate(`/inventories/${newInventory.id}`);
+            navigate(`/inventory/${newInventory.id}`);
         } catch (err) {
             console.error(err);
             alert("Failed to create inventory");

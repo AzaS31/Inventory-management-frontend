@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import CategoryService from "../api/CategoryService";
+import { CategoryService } from "../services/CategoryService";
 
 export const CategoryContext = createContext();
 

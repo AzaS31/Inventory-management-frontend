@@ -31,42 +31,34 @@ export default function CustomIdFormatBuilder({ value = [], onChange }) {
 
     useEffect(() => {
         const generatePreview = () => {
-            let result = "";
-
-            localFormat.forEach((part) => {
+            const parts = localFormat.map((part) => {
                 switch (part.type) {
                     case "TEXT":
-                        result += part.value || "";
-                        break;
+                        return part.value || "";
                     case "RAND6":
-                        result += Math.floor(100000 + Math.random() * 900000);
-                        break;
+                        return Math.floor(100000 + Math.random() * 900000);
                     case "RAND9":
-                        result += Math.floor(100000000 + Math.random() * 900000000);
-                        break;
+                        return Math.floor(100000000 + Math.random() * 900000000);
                     case "RAND20":
-                        result += Math.floor(Math.random() * 1048576);
-                        break;
+                        return Math.floor(Math.random() * 1048576);
                     case "RAND32":
-                        result += Math.floor(Math.random() * 4294967296);
-                        break;
+                        return Math.floor(Math.random() * 4294967296);
                     case "GUID":
-                        result += crypto.randomUUID().slice(0, 8);
-                        break;
-                    case "DATE":
+                        return crypto.randomUUID().slice(0, 8);
+                    case "DATE": {
                         const date = new Date();
                         const yyyy = date.getFullYear();
                         const mm = String(date.getMonth() + 1).padStart(2, "0");
                         const dd = String(date.getDate()).padStart(2, "0");
-                        result += `${yyyy}${mm}${dd}`;
-                        break;
+                        return `${yyyy}${mm}${dd}`;
+                    }
                     case "SEQ":
-                        result += String(1).padStart(part.digits || 6, "0");
-                        break;
+                        return String(1).padStart(part.digits || 6, "0");
                     default:
-                        break;
+                        return "";
                 }
             });
+            const result = parts.join("-");
 
             setPreviewId(result || "(empty)");
         };
@@ -158,7 +150,6 @@ export default function CustomIdFormatBuilder({ value = [], onChange }) {
                 </Form.Select>
             </div>
 
-            {/* 🟢 Превью ID */}
             <div className="mt-3">
                 <strong>Preview:</strong>
                 <div className="mt-1 p-2 bg-light rounded border">

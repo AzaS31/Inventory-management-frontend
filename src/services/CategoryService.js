@@ -1,14 +1,14 @@
 import api from "../api/axios";
 
-const CategoryService = {
-    getAll: async () => {
+export const CategoryService = {
+    async getAll() {
         const res = await api.get("/categories");
         return res.data;
     },
-    getById: async (id) => {
+    async getById(id) {
         const res = await api.get(`/categories/${id}`);
         return res.data;
     },
 };
 
-export default CategoryService;
+

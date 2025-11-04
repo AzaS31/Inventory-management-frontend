@@ -1,12 +1,13 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
-import InventoryService from "../api/InventoryService";
+import { InventoryService } from "../services/InventoryService";
 
 export const InventoryContext = createContext();
 
 export const InventoryProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
     const [allInventories, setAllInventories] = useState([]);
+    const [topFiveInventories, setTopFiveInventories] = useState([]);
     const [sharedWithMeInventories, setSharedWithMeInventories] = useState([]);
     const [myInventories, setMyInventories] = useState([]);
     const [userInventories, setUserInventories] = useState([]);
@@ -30,6 +31,9 @@ export const InventoryProvider = ({ children }) => {
 
     const fetchMyInventories = () =>
         fetchInventories(InventoryService.getMy, setMyInventories, "my inventories", true);
+
+    const fetchTopFiveInventories = () =>
+        fetchInventories(InventoryService.getTopFive, setTopFiveInventories, "top-5 inventories", false);
 
     const fetchSharedWithMeInventories = () =>
         fetchInventories(InventoryService.getShared, setSharedWithMeInventories, "shared with me inventories", true);
@@ -92,12 +96,32 @@ export const InventoryProvider = ({ children }) => {
         return updateInventoryCommon(id, data, setSharedWithMeInventories);
     };
 
+    const updateInventoryCustomIdFormat = async (id, customIdFormat) => {
+        try {
+            const updated = await InventoryService.updateCustomIdFormat(id, customIdFormat);
+            setMyInventories((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
+            return updated;
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to update custom ID format");
+            throw err;
+        }
+    };
+
     const deleteInventory = async (id) => {
         try {
             await InventoryService.delete(id);
             setMyInventories((prev) => prev.filter((inv) => inv.id !== id));
         } catch (err) {
             setError(err.response?.data?.message || "Failed to delete inventory");
+        }
+    };
+
+    const deleteInventoriesBatch = async (ids) => {
+        try {
+            await InventoryService.deleteBatch(ids);
+            setMyInventories((prev) => prev.filter((inv) => !ids.includes(inv.id)));
+        } catch (error) {
+            setError(error.message || "Failed to delete selected inventories");
         }
     };
 
@@ -109,6 +133,7 @@ export const InventoryProvider = ({ children }) => {
         <InventoryContext.Provider
             value={{
                 allInventories,
+                topFiveInventories,
                 myInventories,
                 sharedWithMeInventories,
                 userInventories,
@@ -116,6 +141,7 @@ export const InventoryProvider = ({ children }) => {
                 loading,
                 error,
                 fetchAllInventories,
+                fetchTopFiveInventories,
                 fetchMyInventories,
                 fetchSharedWithMeInventories,
                 fetchUserInventories,
@@ -124,7 +150,9 @@ export const InventoryProvider = ({ children }) => {
                 getInventoryById,
                 updateMyInventory,
                 updateSharedWithMeInventory,
+                updateInventoryCustomIdFormat,
                 deleteInventory,
+                deleteInventoriesBatch,
             }}
         >
             {children}

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import CustomFieldService from "../api/CustomFieldService";
+import { CustomFieldService } from "../services/CustomFieldService";
 
 const CustomFieldContext = createContext();
 

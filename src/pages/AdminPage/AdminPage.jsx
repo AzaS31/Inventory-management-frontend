@@ -5,9 +5,10 @@ import { useNavigate } from "react-router-dom";
 import Notification from "../../components/Notification";
 import Toolbar from "./Toolbar";
 import UsersTable from "./UsersTable";
+import { Container, Spinner, Alert } from "react-bootstrap";
 
 export default function AdminPage() {
-    const { user, loading } = useContext(AuthContext);
+    const { user, loading, logout } = useContext(AuthContext);
     const { users, fetchAllUsers, changeRole, setActive, deleteUsers, loadingUsers } = useUsers();
     const navigate = useNavigate();
 
@@ -49,11 +50,28 @@ export default function AdminPage() {
 
     const handleRoleChange = async (roleId) => {
         if (selectedUsers.length === 0) return;
+        const ADMIN_ROLE_ID = 2;
+        const isCurrentUserAffected = selectedUsers.includes(user.id);
+        const isDemotingSelf = isCurrentUserAffected && (roleId !== ADMIN_ROLE_ID);
+
         try {
             const res = await changeRole(selectedUsers, roleId);
             showNotification(`${res.count} user(s) roles updated`, "success");
             setSelectedUsers([]);
+
+            if (isDemotingSelf) {
+                await logout();
+                navigate("/profile", { replace: true });
+                return;
+            }
+
         } catch (err) {
+            if (isDemotingSelf && err.response && err.response.status === 403) {
+                showNotification(`Role changed. Logging out...`, "warning");
+                await logout();
+                navigate("/profile", { replace: true });
+                return;
+            }
             showNotification(err.message || "Failed to update roles", "error");
         }
     };
@@ -71,10 +89,19 @@ export default function AdminPage() {
 
     const handleBlock = async () => {
         if (selectedUsers.length === 0) return;
+
+        const isCurrentUserBlocked = selectedUsers.includes(user.id);
+
         try {
             const res = await setActive(selectedUsers, false);
             showNotification(`${res.count} user(s) blocked`, "warning");
             setSelectedUsers([]);
+
+            if (isCurrentUserBlocked) {
+                await logout();
+                navigate("/login", { replace: true });
+                return;
+            }
         } catch (err) {
             showNotification(err.message || "Failed to block users", "error");
         }
@@ -92,15 +119,25 @@ export default function AdminPage() {
     };
 
     if (loading || loadingUsers) {
-        return <p className="text-center mt-5">Loading...</p>;
+        return (
+            <Container className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
+                <Spinner animation="border" variant="primary" />
+            </Container>
+        );
     }
 
     if (!user || user.role?.name !== "ADMIN") {
-        return <p className="alert alert-danger text-center mt-5">Redirecting... Access Denied.</p>;
+        return (
+            <Container className="mt-5">
+                <Alert variant="danger" className="text-center">
+                    Redirecting... Access Denied.
+                </Alert>
+            </Container>
+        );
     }
 
     return (
-        <div className="container mt-5">
+        <Container className="mt-5">
             <div style={{ position: 'fixed', top: '150px', right: '150px', zIndex: 9999 }}>
                 <Notification
                     message={notification.message}
@@ -126,6 +163,6 @@ export default function AdminPage() {
                 onToggleAll={toggleSelectAll}
                 selectAll={selectAll}
             />
-        </div>
+        </Container>
     );
 }

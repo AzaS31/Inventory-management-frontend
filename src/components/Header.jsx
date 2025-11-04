@@ -1,46 +1,69 @@
-import { Link } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useSearch } from "../context/SearchContext";
+import { Navbar, Nav, Container, Button, Form, InputGroup } from "react-bootstrap";
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 
 export default function Header() {
-    const { user, logout, loading } = useContext(AuthContext);
+    const { user, logout, loading } = useAuth();
+    const { search } = useSearch();
+    const [query, setQuery] = useState("");
+    const navigate = useNavigate();
 
     if (loading) return null;
 
-    return (
-        <header>
-            <div className="px-3 py-2 text-bg-dark border-bottom">
-                <div className="container d-flex justify-content-between align-items-center">
-                    <div>
-                        <Link to="/" className="nav-link text-white fs-5">
-                            Home
-                        </Link>
-                    </div>
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        if (!query.trim()) return;
+        await search(query);
+        navigate(`/search?q=${encodeURIComponent(query)}`);
+    };
 
-                    <div className="d-flex align-items-center gap-2">
+    return (
+        <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
+            <Container>
+                <Navbar.Brand as={Link} to="/">
+                    Home
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="ms-auto align-items-center">
+                        <Form className="d-flex me-3" onSubmit={handleSearch}>
+                            <InputGroup>
+                                <Form.Control
+                                    type="search"
+                                    placeholder="Search..."
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                />
+                                <Button type="submit" variant="light">
+                                    <i className="bi bi-search"></i>
+                                </Button>
+                            </InputGroup>
+                        </Form>
+
                         {!user && (
                             <>
-                                <Link to="/login" className="btn btn-outline-light">
+                                <Button as={Link} to="/login" variant="outline-light" className="me-2">
                                     Login
-                                </Link>
-                                <Link to="/register" className="btn btn-warning">
+                                </Button>
+                                <Button as={Link} to="/register" variant="warning">
                                     Sign-up
-                                </Link>
+                                </Button>
                             </>
                         )}
 
                         {user && (
                             <>
-                                <span className="text-white">{user.username}</span>
+                                <span className="text-white me-2">{user.username}</span>
 
                                 <div
-                                    className="rounded-circle bg-secondary"
+                                    className="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2"
                                     style={{
                                         width: "32px",
                                         height: "32px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
                                         color: "white",
                                         fontWeight: "bold",
                                         textTransform: "uppercase",
@@ -50,24 +73,24 @@ export default function Header() {
                                     {user.username[0]}
                                 </div>
 
-                                <Link to="/profile" className="btn btn-outline-light">
+                                <Button as={Link} to="/profile" variant="outline-light" className="me-2">
                                     Profile
-                                </Link>
+                                </Button>
 
                                 {user.role?.name === "ADMIN" && (
-                                    <Link to="/admin" className="btn btn-outline-light">
+                                    <Button as={Link} to="/admin" variant="outline-light" className="me-2">
                                         Admin Panel
-                                    </Link>
+                                    </Button>
                                 )}
 
-                                <button className="btn btn-warning" onClick={logout}>
+                                <Button variant="warning" onClick={logout}>
                                     Logout
-                                </button>
+                                </Button>
                             </>
                         )}
-                    </div>
-                </div>
-            </div>
-        </header>
+                    </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
     );
 }

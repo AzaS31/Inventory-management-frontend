@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Spinner } from "react-bootstrap";
 import { useInventory } from "../../context/InventoryContext";
-import InventoryTableBase from "../../components/Inventories/InventoryTableBase";
+import InventoryTableBase from "../../components/InventoryTableBase";
 import { useParams } from "react-router-dom";
 
 export default function SharedWithUserInventories() {

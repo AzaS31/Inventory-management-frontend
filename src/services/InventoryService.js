@@ -1,50 +1,65 @@
-import api from "./axios";
+import api from "../api/axios";
 
-const InventoryService = {
-    getAll: async () => {
+export const InventoryService = {
+    async getAll() {
         const res = await api.get("/inventories");
         return res.data;
     },
 
-    getMy: async () => {
+    async getTopFive() {
+        const res = await api.get("/inventories/top5");
+        return res.data;
+    },
+
+    async getMy() {
         const res = await api.get("/inventories/my");
         return res.data;
     },
 
-    getShared: async () => {
+    async getShared() {
         const res = await api.get("/inventories/shared");
         return res.data;
     },
 
-    getUserInventories: async (userId) => {
+    async getUserInventories(userId) {
         const res = await api.get(`/inventories/user/${userId}`);
         return res.data;
     },
 
-    getSharedWithUserInventories: async (userId) => {
+    async getSharedWithUserInventories(userId) {
         const res = await api.get(`/inventories/user/${userId}/shared`);
         return res.data;
     },
 
-    getById: async (id) => {
+    async getById(id) {
         const res = await api.get(`/inventories/${id}`);
         return res.data;
     },
 
-    create: async (data) => {
+    async create(data) {
         const res = await api.post("/inventories", data);
         return res.data;
     },
 
-    update: async (id, data) => {
+    async update(id, data) {
         const res = await api.put(`/inventories/${id}`, data);
         return res.data;
     },
 
-    delete: async (id) => {
+    async updateCustomIdFormat(id, customIdFormat) {
+        const res = await api.put(`/inventories/${id}/custom-id-format`, { customIdFormat });
+        return res.data;
+    },
+
+    async delete(id) {
         const res = await api.delete(`/inventories/${id}`);
+        return res.data;
+    },
+
+    async deleteBatch(ids) {
+        const res = await api.post("/inventories/delete-batch", { ids });
         return res.data;
     },
 };
 
-export default InventoryService;
+

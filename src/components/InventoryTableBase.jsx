@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Table, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import Pagination from "../Pagination";
+import Pagination from "./Pagination";
+import ReactMarkdown from "react-markdown";
 
 export default function InventoryTableBase({
     data = [],
@@ -54,7 +55,7 @@ export default function InventoryTableBase({
                             style={{ cursor: "pointer" }}
                             onClick={(e) => {
                                 if (e.target.type !== "checkbox") {
-                                    navigate(`/inventories/${inv.id}`);
+                                    navigate(`/inventory/${inv.id}`);
                                 }
                             }}
                         >
@@ -70,7 +71,15 @@ export default function InventoryTableBase({
                             <td>{indexOfFirstItem + index + 1}</td>
                             <td>{inv.title}</td>
                             <td>{inv.category?.name || "-"}</td>
-                            <td>{inv.description || "-"}</td>
+                            <td>
+                                {inv.description ? (
+                                    <ReactMarkdown>
+                                        {inv.description}
+                                    </ReactMarkdown>
+                                ) : (
+                                    "-"
+                                )}
+                            </td>
                             <td>{inv._count?.items || 0}</td>
                             <td>
                                 {inv.owner ? (

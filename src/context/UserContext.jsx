@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import UserService from "../api/UserService";
+import { UserService } from "../services/UserService";
 
 const UserContext = createContext();
 
@@ -32,7 +32,7 @@ export const UserProvider = ({ children }) => {
     const changeRole = async (userIds, roleId) => {
         try {
             const res = await UserService.changeRole(userIds, roleId);
-            await fetchAllUsers(); // обновляем список после изменения
+            await fetchAllUsers(); 
             return res;
         } catch (err) {
             console.error("Failed to change role:", err);

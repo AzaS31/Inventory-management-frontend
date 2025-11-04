@@ -1,4 +1,5 @@
 import { Button, Row, Col } from "react-bootstrap";
+import { useAuth } from "../context/AuthContext";
 
 export default function TableToolbar({
     selectedCount,
@@ -7,6 +8,9 @@ export default function TableToolbar({
     onDelete,
     label, 
 }) {
+    const { user } = useAuth();
+    if (!user) return null;
+    
     return (
         <Row className="align-items-center mb-3">
             <Col xs="auto">

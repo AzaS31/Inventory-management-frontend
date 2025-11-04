@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useInventory } from "../../context/InventoryContext";
-import InventoryTableBase from "../../components/Inventories/InventoryTableBase";
+import InventoryTableBase from "../../components/InventoryTableBase";
 import { Button } from "react-bootstrap";
 
 export default function SharedWithMeInventories() {

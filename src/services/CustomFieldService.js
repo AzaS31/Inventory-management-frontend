@@ -1,6 +1,6 @@
-import api from "./axios";
+import api from "../api/axios";
 
-const CustomFieldService = {
+export const CustomFieldService = {
     async getAll(inventoryId) {
         const res = await api.get(`/custom-fields/${inventoryId}`);
         return res.data;
@@ -22,4 +22,3 @@ const CustomFieldService = {
     },
 };
 
-export default CustomFieldService;

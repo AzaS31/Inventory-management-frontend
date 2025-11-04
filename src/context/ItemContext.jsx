@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useCallback } from "react";
-import ItemService from "../api/ItemService";
+import { ItemService } from "../services/ItemService";
 
 const ItemContext = createContext();
 
@@ -12,6 +12,24 @@ export const ItemProvider = ({ children }) => {
         try {
             const data = await ItemService.getAll(inventoryId);
             setItems(data);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const getItemById = useCallback(async (inventoryId, id) => {
+        setLoading(true);
+        try {
+            const data = await ItemService.getById(inventoryId, id);
+            setItems((prev) => {
+                const exists = prev.find(item => item.id === id);
+                if (exists) {
+                    return prev.map(item => (item.id === id ? data : item));
+                } else {
+                    return [...prev, data];
+                }
+            });
+            return data;
         } finally {
             setLoading(false);
         }
@@ -34,13 +52,10 @@ export const ItemProvider = ({ children }) => {
         setItems((prev) => prev.filter((item) => item.id !== id));
     }, []);
 
-    const addLike = useCallback(async (id) => {
-        await ItemService.addLike(id);
-        setItems((prev) =>
-            prev.map((item) =>
-                item.id === id ? { ...item, _count: { likes: (item._count?.likes || 0) + 1 } } : item
-            )
-        );
+    const deleteBatch = useCallback(async (inventoryId, ids) => {
+        const res = await ItemService.deleteBatch(inventoryId, ids);
+        setItems((prev) => prev.filter(item => !ids.includes(item.id)));
+        return res.deletedCount;
     }, []);
 
     return (
@@ -49,10 +64,11 @@ export const ItemProvider = ({ children }) => {
                 items,
                 loading,
                 fetchItems,
+                getItemById,
                 createItem,
                 updateItem,
                 deleteItem,
-                addLike,
+                deleteBatch,
             }}
         >
             {children}
