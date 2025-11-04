@@ -14,6 +14,7 @@ import { CustomFieldProvider } from './context/CustomFieldContext.jsx';
 import { ItemLikeProvider } from "./context/ItemLikeContext";
 import { CommentProvider } from './context/CommentContext.jsx';
 import { SearchProvider } from './context/SearchContext.jsx';
+import { TagProvider } from './context/TagContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -28,7 +29,9 @@ createRoot(document.getElementById('root')).render(
                     <CustomFieldProvider>
                       <CommentProvider>
                         <SearchProvider>
-                          <App />
+                          <TagProvider>
+                            <App />
+                          </TagProvider>
                         </SearchProvider>
                       </CommentProvider>
                     </CustomFieldProvider>

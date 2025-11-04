@@ -4,16 +4,19 @@ import { useNavigate } from "react-router-dom";
 import { useInventory } from "../../context/InventoryContext";
 import { useCategory } from "../../context/CategoryContext";
 import InventoryForm from "./InventoryForm";
+import { useTags } from "../../context/TagContext";
 
 export default function InventoryCreatePage() {
     const { createInventory } = useInventory();
     const { categories, fetchCategories } = useCategory();
+    const { assignTags } = useTags();
 
     const [form, setForm] = useState({
         title: "",
         description: "",
         isPublic: true,
         categoryId: "",
+        tags: [],
     });
 
     const navigate = useNavigate();
@@ -28,7 +31,7 @@ export default function InventoryCreatePage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const hasUniquePart = form.customIdFormat?.some(part =>
             ["SEQ", "GUID", "RAND6", "RAND9", "RAND20", "RAND32"].includes(part.type)
         );
@@ -40,6 +43,11 @@ export default function InventoryCreatePage() {
 
         try {
             const newInventory = await createInventory(form);
+
+            if (form.tags?.length > 0) {
+                await assignTags(newInventory.id, form.tags);
+            }
+
             navigate(`/inventory/${newInventory.id}`);
         } catch (err) {
             console.error(err);

@@ -8,6 +8,7 @@ export default function InventoryForm({
     categoryId,
     categories,
     customIdFormat,
+    tags,
     onChange,
     onSubmit,
     onCancel,
@@ -21,6 +22,7 @@ export default function InventoryForm({
                 categoryId={categoryId}
                 categories={categories}
                 customIdFormat={customIdFormat}
+                tags={tags}
                 onChange={onChange}
             />
 

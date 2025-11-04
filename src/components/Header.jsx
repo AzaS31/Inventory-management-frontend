@@ -1,16 +1,33 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useSearch } from "../context/SearchContext";
-import { Navbar, Nav, Container, Button, Form, InputGroup } from "react-bootstrap";
+import { useTags } from "../context/TagContext";
+import { Navbar, Nav, Container, Button, Form, InputGroup, ListGroup } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
 
 export default function Header() {
     const { user, logout, loading } = useAuth();
     const { search } = useSearch();
+    const { searchTags } = useTags();
     const [query, setQuery] = useState("");
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (query.length < 2) {
+            setSuggestions([]);
+            return;
+        }
+
+        const timeout = setTimeout(async () => {
+            const data = await searchTags(query);
+            setSuggestions(data);
+        }, 250);
+
+        return () => clearTimeout(timeout);
+    }, [query]);
 
     if (loading) return null;
 
@@ -19,6 +36,13 @@ export default function Header() {
         if (!query.trim()) return;
         await search(query);
         navigate(`/search?q=${encodeURIComponent(query)}`);
+        setShowSuggestions(false);
+    };
+
+    const handleSelect = (tagName) => {
+        navigate(`/search?q=${encodeURIComponent(tagName)}`);
+        setShowSuggestions(false);
+        setQuery(tagName);
     };
 
     return (
@@ -29,19 +53,49 @@ export default function Header() {
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="ms-auto align-items-center">
-                        <Form className="d-flex me-3" onSubmit={handleSearch}>
+                    <Nav className="ms-auto align-items-center position-relative">
+                        <Form className="d-flex me-3" onSubmit={handleSearch} autoComplete="off">
                             <InputGroup>
                                 <Form.Control
                                     type="search"
                                     placeholder="Search..."
                                     value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
+                                    onChange={(e) => {
+                                        setQuery(e.target.value);
+                                        setShowSuggestions(true);
+                                    }}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                                 />
                                 <Button type="submit" variant="light">
                                     <i className="bi bi-search"></i>
                                 </Button>
                             </InputGroup>
+
+                            {showSuggestions && suggestions.length > 0 && (
+                                <ListGroup
+                                    className="position-absolute w-100 mt-1 shadow-sm"
+                                    style={{
+                                        top: "100%",
+                                        zIndex: 10,
+                                        backgroundColor: "white",
+                                        borderRadius: "0.25rem",
+                                        maxHeight: "250px",
+                                        overflowY: "auto",
+                                    }}
+                                >
+                                    {suggestions.map((tag) => (
+                                        <ListGroup.Item
+                                            key={tag.id}
+                                            action
+                                            onClick={() => handleSelect(tag.name)}
+                                            style={{ cursor: "pointer" }}
+                                        >
+                                            <i className="bi bi-tag text-secondary me-2"></i>
+                                            {tag.name}
+                                        </ListGroup.Item>
+                                    ))}
+                                </ListGroup>
+                            )}
                         </Form>
 
                         {!user && (

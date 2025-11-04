@@ -1,7 +1,7 @@
 import { Form, Row, Col } from "react-bootstrap";
 import CustomIdFormatBuilder from "../../components/CustomIdFormatBuilder";
+import TagSelector from "./TagSelector";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 export default function InventoryDetailsFields({
     title,
@@ -10,6 +10,7 @@ export default function InventoryDetailsFields({
     categoryId,
     categories,
     customIdFormat,
+    tags,
     onChange,
 }) {
     const access = isPublic ? "public" : "private";
@@ -44,7 +45,7 @@ export default function InventoryDetailsFields({
                             className="border p-2"
                             style={{ height: "100%", overflowY: "auto", backgroundColor: "#f8f9fa" }}
                         >
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            <ReactMarkdown>
                                 {description || "Preview will appear here..."}
                             </ReactMarkdown>
                         </div>
@@ -70,6 +71,11 @@ export default function InventoryDetailsFields({
             <CustomIdFormatBuilder
                 value={customIdFormat}
                 onChange={(updated) => onChange("customIdFormat", updated)}
+            />
+
+            <TagSelector
+                value={tags || []}
+                onChange={(newTags) => onChange("tags", newTags)}
             />
 
             <Form.Group className="mb-3">
