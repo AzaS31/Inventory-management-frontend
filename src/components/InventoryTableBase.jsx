@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Table, Form } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Pagination from "./Pagination";
 import ReactMarkdown from "react-markdown";
 
@@ -12,6 +12,7 @@ export default function InventoryTableBase({
     onSelectAll = () => { },
 }) {
     const navigate = useNavigate();
+    const location = useLocation();
     const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -55,7 +56,9 @@ export default function InventoryTableBase({
                             style={{ cursor: "pointer" }}
                             onClick={(e) => {
                                 if (e.target.type !== "checkbox") {
-                                    navigate(`/inventory/${inv.id}`);
+                                    navigate(`/inventory/${inv.id}`, {
+                                        state: { from: location.pathname },
+                                    });
                                 }
                             }}
                         >

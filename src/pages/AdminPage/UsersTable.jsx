@@ -1,4 +1,4 @@
-import { Table, Form, Badge } from "react-bootstrap";
+import { Table, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 export default function UsersTable({
@@ -21,12 +21,8 @@ export default function UsersTable({
         }
     };
 
-    const getStatusBadge = (isActive) => {
-        return isActive ? (
-            <Badge bg="success">Active</Badge>
-        ) : (
-            <Badge bg="secondary">Inactive</Badge>
-        );
+    const getStatusText = (isActive) => {
+        return isActive ? "Active" : "Inactive";
     };
 
     return (
@@ -69,7 +65,7 @@ export default function UsersTable({
                         <td>{user.username}</td>
                         <td>{user.email}</td>
                         <td>{getRoleName(user.roleId)}</td>
-                        <td>{getStatusBadge(user.isActive)}</td>
+                        <td>{getStatusText(user.isActive)}</td>
                     </tr>
                 ))}
             </tbody>

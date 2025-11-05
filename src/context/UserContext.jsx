@@ -32,7 +32,7 @@ export const UserProvider = ({ children }) => {
     const changeRole = async (userIds, roleId) => {
         try {
             const res = await UserService.changeRole(userIds, roleId);
-            await fetchAllUsers(); 
+            await fetchAllUsers();
             return res;
         } catch (err) {
             console.error("Failed to change role:", err);

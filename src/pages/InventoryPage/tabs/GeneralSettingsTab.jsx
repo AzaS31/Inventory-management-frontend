@@ -1,35 +1,59 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useCategory } from "../../../context/CategoryContext";
 import { useInventory } from "../../../context/InventoryContext";
-import { AuthContext, useAuth } from "../../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
+import TagSelector from "../../InventoryCreatePage/TagSelector";
+import { useTags } from "../../../context/TagContext";
 
 const GeneralSettingsTab = ({ inventory }) => {
     const { user } = useAuth();
     const { categories, fetchCategories } = useCategory();
-    const { updateMyInventory } = useInventory();
+    const { updateInventory } = useInventory();
+    const { assignTags, getTagsByInventory } = useTags();
 
     const [form, setForm] = useState({
-        title: inventory.title || "",
-        description: inventory.description || "",
-        categoryId: inventory.category?.id || "",
-        isPublic: inventory.isPublic,
+        title: inventory?.title || "",
+        description: inventory?.description || "",
+        categoryId: inventory?.categoryId || "",
+        isPublic: inventory?.isPublic ?? true,
     });
-
+    
+    const [tags, setTags] = useState([]);
+    const [loadingTags, setLoadingTags] = useState(false);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        if (categories.length === 0) fetchCategories();
-    }, [categories]);
+        if (!categories.length) fetchCategories();
+    }, [categories, fetchCategories]);
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            if (!inventory?.id) return;
+            setLoadingTags(true);
+            try {
+                const currentTags = await getTagsByInventory(inventory.id);
+                setTags(currentTags.map(t => t.name));
+            } finally {
+                setLoadingTags(false);
+            }
+        };
+        fetchTags();
+    }, [inventory, getTagsByInventory]);
 
     const handleChange = (field, value) => {
-        setForm((prev) => ({ ...prev, [field]: value }));
+        let finalValue = value;
+        if (field === "categoryId" && value === "") {
+            finalValue = null;
+        }
+        setForm(prev => ({ ...prev, [field]: finalValue }));
     };
 
     const handleSave = async () => {
         try {
             setSaving(true);
-            await updateMyInventory(inventory.id, form);
+            await updateInventory(inventory.id, form, inventory.ownerId);
+            await assignTags(inventory.id, tags);
             alert("Inventory updated successfully!");
         } catch (err) {
             console.error(err);
@@ -39,7 +63,7 @@ const GeneralSettingsTab = ({ inventory }) => {
         }
     };
 
-    const canEdit = user?.id === inventory.ownerId || user?.role?.name === "ADMIN";
+    const canEdit = user?.id === inventory?.ownerId || user?.role?.name === "ADMIN";
 
     return (
         <div className="p-3">
@@ -72,10 +96,8 @@ const GeneralSettingsTab = ({ inventory }) => {
                             onChange={(e) => handleChange("categoryId", e.target.value)}
                         >
                             <option value="">Select category...</option>
-                            {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
                             ))}
                         </Form.Select>
                     </Form.Group>
@@ -84,14 +106,23 @@ const GeneralSettingsTab = ({ inventory }) => {
                         <Form.Label>Status</Form.Label>
                         <Form.Select
                             value={form.isPublic ? "public" : "private"}
-                            onChange={(e) =>
-                                handleChange("isPublic", e.target.value === "public")
-                            }
+                            onChange={(e) => handleChange("isPublic", e.target.value === "public")}
                         >
                             <option value="public">Public</option>
                             <option value="private">Private</option>
                         </Form.Select>
                     </Form.Group>
+
+                    {loadingTags ? (
+                        <div>Loading tags...</div>
+                    ) : (
+                        <TagSelector
+                            value={tags}
+                            onChange={setTags}
+                            assignTags={assignTags}
+                            inventoryId={inventory.id}
+                        />
+                    )}
 
                     <Button onClick={handleSave} disabled={saving}>
                         {saving ? "Saving..." : "Save"}
@@ -103,6 +134,7 @@ const GeneralSettingsTab = ({ inventory }) => {
                     <li><strong>Category:</strong> {inventory.category?.name || "Null"}</li>
                     <li><strong>Description:</strong> {inventory.description || "Null"}</li>
                     <li><strong>Status:</strong> {inventory.isPublic ? "Public" : "Private"}</li>
+                    <li><strong>Tags:</strong> {tags.join(", ") || "None"}</li>
                     <li><strong>Created At:</strong> {new Date(inventory.createdAt).toLocaleString()}</li>
                     <li><strong>Created By:</strong> {inventory.owner?.username || "Null"}</li>
                 </ul>

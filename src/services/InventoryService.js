@@ -1,8 +1,8 @@
 import api from "../api/axios";
 
 export const InventoryService = {
-    async getAll() {
-        const res = await api.get("/inventories");
+    async getLatest() {
+        const res = await api.get("/inventories/latest");
         return res.data;
     },
 

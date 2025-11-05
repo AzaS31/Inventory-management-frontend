@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext, useEffect, useCallback } from "react";
 import api from "../api/axios";
 
 export const AuthContext = createContext();
@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchProfile = async () => {
+    const fetchProfile = useCallback(async () => {
         const token = localStorage.getItem("token");
         if (!token) {
             setUser(null);
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []); 
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -34,22 +34,29 @@ export const AuthProvider = ({ children }) => {
             window.history.replaceState({}, document.title, "/profile");
         }
         fetchProfile();
-    }, []);
+    }, [fetchProfile]);
 
-    const login = async (credentials) => {
-        const res = await api.post("/auth/login", credentials);
-        localStorage.setItem("token", res.data.token);
-        await fetchProfile();
-        return res;
-    };
+    const login = useCallback(
+        async (credentials) => {
+            const res = await api.post("/auth/login", credentials);
+            localStorage.setItem("token", res.data.token);
+            await fetchProfile();
+            return res;
+        },
+        [fetchProfile]
+    );
 
-    const register = async (data) => {
-        const res = await api.post("/auth/register", data);
-        localStorage.setItem("token", res.data.token);
-        await fetchProfile();
-        return res;
-    };
-    const logout = async () => {
+    const register = useCallback(
+        async (data) => {
+            const res = await api.post("/auth/register", data);
+            localStorage.setItem("token", res.data.token);
+            await fetchProfile();
+            return res;
+        },
+        [fetchProfile]
+    );
+
+    const logout = useCallback(async () => {
         try {
             await api.get("/auth/logout");
         } catch (err) {
@@ -58,12 +65,10 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
             localStorage.removeItem("token");
         }
-    };
+    }, []);
 
     return (
-        <AuthContext.Provider
-            value={{ user, setUser, login, register, logout, loading }}
-        >
+        <AuthContext.Provider value={{ user, setUser, login, register, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

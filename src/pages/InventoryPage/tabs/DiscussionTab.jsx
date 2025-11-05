@@ -55,8 +55,8 @@ export default function DiscussionTab({ inventoryId }) {
                                     <Dropdown align="end">
                                         <Dropdown.Toggle
                                             variant="link"
-                                            bsPrefix="p-0 border-0 bg-transparent"
-                                            className="text-muted"
+                                            bsPrefix="bg-transparent"
+                                            className="text-dark"
                                             id={`dropdown-${c.id}`}
                                         >
                                             <i className="bi bi-three-dots-vertical fs-5"></i>

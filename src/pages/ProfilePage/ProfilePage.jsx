@@ -8,8 +8,6 @@ export default function ProfilePage() {
 
     if (!user) return <p>Please log in.</p>;
 
-    const isAdmin = user.role?.name === "ADMIN";
-
     return (
         <div className="container py-4">
             <h2 className="mb-4">Welcome, {user.username}</h2>

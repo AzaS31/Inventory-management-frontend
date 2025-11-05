@@ -1,12 +1,12 @@
-import { createContext, useState, useEffect, useContext } from "react";
-import { AuthContext } from "./AuthContext";
+import { createContext, useState, useEffect, useContext, useCallback } from "react";
+import { useAuth } from "./AuthContext";
 import { InventoryService } from "../services/InventoryService";
 
 export const InventoryContext = createContext();
 
 export const InventoryProvider = ({ children }) => {
-    const { user } = useContext(AuthContext);
-    const [allInventories, setAllInventories] = useState([]);
+    const { user } = useAuth();
+    const [latestInventories, setLatestInventories] = useState([]);
     const [topFiveInventories, setTopFiveInventories] = useState([]);
     const [sharedWithMeInventories, setSharedWithMeInventories] = useState([]);
     const [myInventories, setMyInventories] = useState([]);
@@ -15,48 +15,69 @@ export const InventoryProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchInventories = async (fetchFunction, setState, type = "inventories", requireAuth = true) => {
-        if (requireAuth && !user) return;
-        setLoading(true);
+    const fetchInventories = useCallback(
+        async (fetchFunction, setState, type = "inventories", requireAuth = true) => {
+            if (requireAuth && !user) return;
+            setLoading(true);
+            try {
+                const data = await fetchFunction();
+                setState(data);
+            } catch (err) {
+                setError(err.response?.data?.message || `Failed to fetch ${type}`);
+            } finally {
+                setLoading(false);
+            }
+        },
+        [user]
+    );
 
-        try {
-            const data = await fetchFunction();
-            setState(data);
-        } catch (err) {
-            setError(err.response?.data?.message || `Failed to fetch ${type}`);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const fetchMyInventories = useCallback(
+        () => fetchInventories(InventoryService.getMy, setMyInventories, "my inventories", true),
+        [fetchInventories]
+    );
 
-    const fetchMyInventories = () =>
-        fetchInventories(InventoryService.getMy, setMyInventories, "my inventories", true);
+    const fetchTopFiveInventories = useCallback(
+        () => fetchInventories(InventoryService.getTopFive, setTopFiveInventories, "top-5 inventories", false),
+        [fetchInventories]
+    );
 
-    const fetchTopFiveInventories = () =>
-        fetchInventories(InventoryService.getTopFive, setTopFiveInventories, "top-5 inventories", false);
+    const fetchSharedWithMeInventories = useCallback(
+        () => fetchInventories(InventoryService.getShared, setSharedWithMeInventories, "shared with me inventories", true),
+        [fetchInventories]
+    );
 
-    const fetchSharedWithMeInventories = () =>
-        fetchInventories(InventoryService.getShared, setSharedWithMeInventories, "shared with me inventories", true);
+    const fetchLatestInventories = useCallback(
+        () => fetchInventories(InventoryService.getLatest, setLatestInventories, "Latest inventories", false),
+        [fetchInventories]
+    );
 
-    const fetchAllInventories = () =>
-        fetchInventories(InventoryService.getAll, setAllInventories, "all inventories", false);
+    const fetchUserInventories = useCallback(
+        (userId) => {
+            if (!userId) return;
+            fetchInventories(
+                () => InventoryService.getUserInventories(targetUserId),
+                setUserInventories,
+                "user inventories",
+                false
+            );
+        },
+        [fetchInventories]
+    );
 
-    const fetchUserInventories = (targetUserId) => {
-        if (!targetUserId) return;
-        fetchInventories(
-            () => InventoryService.getUserInventories(targetUserId),
-            setUserInventories,
-            "user inventories",
-            false
-        );
-    };
+    const fetchSharedWithUserInventories = useCallback(
+        (userId) => {
+            if (!userId) return;
+            fetchInventories(
+                () => InventoryService.getSharedWithUserInventories(targetUserId),
+                setSharedWithUserInventories,
+                "shared with user inventories",
+                false
+            );
+        },
+        [fetchInventories]
+    );
 
-    const fetchSharedWithUserInventories = (targetUserId) => {
-        if (!targetUserId) return;
-        fetchInventories(() => InventoryService.getSharedWithUserInventories(targetUserId), setSharedWithUserInventories, "shared with user inventories", false);
-    }
-
-    const createInventory = async (data) => {
+    const createInventory = useCallback(async (data) => {
         try {
             const newInv = await InventoryService.create(data);
             setMyInventories((prev) => [...prev, newInv]);
@@ -65,38 +86,59 @@ export const InventoryProvider = ({ children }) => {
             setError(err.response?.data?.message || "Failed to create inventory");
             throw err;
         }
-    };
+    }, []);
 
-    const getInventoryById = async (id) => {
+    const getInventoryById = useCallback(async (id) => {
         try {
-            const inventory = await InventoryService.getById(id);
-            return inventory;
+            return await InventoryService.getById(id);
         } catch (err) {
             setError(err.response?.data?.message || "Failed to fetch inventory");
             throw err;
         }
-    };
+    }, []);
 
-    const updateInventoryCommon = async (id, data, setState) => {
-        try {
-            const updated = await InventoryService.update(id, data);
-            setState((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
-            return updated;
-        } catch (err) {
-            setError(err.response?.data?.message || "Failed to update inventory");
-            throw err;
-        }
-    };
+    const allStates = [
+        [myInventories, setMyInventories],
+        [sharedWithMeInventories, setSharedWithMeInventories],
+        [userInventories, setUserInventories],
+        [sharedWithUserInventories, setSharedWithUserInventories]
+    ];
 
-    const updateMyInventory = async (id, data) => {
-        return updateInventoryCommon(id, data, setMyInventories);
-    };
+    const updateInAllStates = useCallback((id, updated) => {
+        allStates.forEach(([, setState]) => {
+            setState(prev => prev.map(inv => (inv.id === id ? updated : inv)));
+        });
+    }, [allStates]);
 
-    const updateSharedWithMeInventory = async (id, data) => {
-        return updateInventoryCommon(id, data, setSharedWithMeInventories);
-    };
+    const removeFromAllStates = useCallback((ids) => {
+        allStates.forEach(([, setState]) => {
+            setState(prev => prev.filter(inv => !ids.includes(inv.id)));
+        });
+    }, [allStates]);
 
-    const updateInventoryCustomIdFormat = async (id, customIdFormat) => {
+    const updateInventory = useCallback(
+        async (id, data, ownerId) => {
+            try {
+                const updated = await InventoryService.update(id, data);
+
+                if (user?.id === ownerId) {
+                    setMyInventories(prev => prev.map(inv => inv.id === id ? updated : inv));
+                } else if (user?.role?.name === "ADMIN") {
+                    updateInAllStates(id, updated);
+                } else {
+                    setSharedWithMeInventories(prev => prev.map(inv => inv.id === id ? updated : inv));
+                }
+
+                return updated;
+            } catch (err) {
+                setError(err.response?.data?.message || "Failed to update inventory");
+                throw err;
+            }
+        },
+        [user, updateInAllStates]
+    );
+
+    const updateInventoryCustomIdFormat = useCallback(async (id, customIdFormat) => {
         try {
             const updated = await InventoryService.updateCustomIdFormat(id, customIdFormat);
             setMyInventories((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
@@ -105,34 +147,51 @@ export const InventoryProvider = ({ children }) => {
             setError(err.response?.data?.message || "Failed to update custom ID format");
             throw err;
         }
-    };
+    }, []);
 
-    const deleteInventory = async (id) => {
-        try {
-            await InventoryService.delete(id);
-            setMyInventories((prev) => prev.filter((inv) => inv.id !== id));
-        } catch (err) {
-            setError(err.response?.data?.message || "Failed to delete inventory");
-        }
-    };
+    const deleteInventory = useCallback(
+        async (id, ownerId) => {
+            try {
+                await InventoryService.delete(id);
 
-    const deleteInventoriesBatch = async (ids) => {
-        try {
-            await InventoryService.deleteBatch(ids);
-            setMyInventories((prev) => prev.filter((inv) => !ids.includes(inv.id)));
-        } catch (error) {
-            setError(error.message || "Failed to delete selected inventories");
-        }
-    };
+                if (user?.role?.name === "ADMIN") {
+                    removeFromAllStates([id]);
+                }
+                else if (user?.id === ownerId) {
+                    setMyInventories(prev => prev.filter(inv => inv.id !== id));
+                }
+            } catch (err) {
+                setError(err.response?.data?.message || "Failed to delete inventory");
+            }
+        },
+        [user, removeFromAllStates]
+    );
+
+    const deleteInventoriesBatch = useCallback(
+        async (ids) => {
+            try {
+                await InventoryService.deleteBatch(ids);
+
+                if (user?.role?.name === "ADMIN") {
+                    removeFromAllStates(ids);
+                } else if (user?.id === ownerId) {
+                    setMyInventories(prev => prev.filter(inv => !ids.includes(inv.id)));
+                }
+            } catch (err) {
+                setError(err.response?.data?.message || "Failed to delete selected inventories");
+            }
+        },
+        [user, removeFromAllStates]
+    );
 
     useEffect(() => {
         if (user) fetchMyInventories();
-    }, [user]);
+    }, [user, fetchMyInventories]);
 
     return (
         <InventoryContext.Provider
             value={{
-                allInventories,
+                latestInventories,
                 topFiveInventories,
                 myInventories,
                 sharedWithMeInventories,
@@ -140,7 +199,7 @@ export const InventoryProvider = ({ children }) => {
                 sharedWithUserInventories,
                 loading,
                 error,
-                fetchAllInventories,
+                fetchLatestInventories,
                 fetchTopFiveInventories,
                 fetchMyInventories,
                 fetchSharedWithMeInventories,
@@ -148,8 +207,7 @@ export const InventoryProvider = ({ children }) => {
                 fetchSharedWithUserInventories,
                 createInventory,
                 getInventoryById,
-                updateMyInventory,
-                updateSharedWithMeInventory,
+                updateInventory,
                 updateInventoryCustomIdFormat,
                 deleteInventory,
                 deleteInventoriesBatch,

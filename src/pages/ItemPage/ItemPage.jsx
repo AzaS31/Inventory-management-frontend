@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Card, Spinner } from "react-bootstrap";
+import { Button, Card, Spinner, Dropdown } from "react-bootstrap";
 import { useAuth } from "../../context/AuthContext";
 import { useItem } from "../../context/ItemContext";
 import { useItemLike } from "../../context/ItemLikeContext";
@@ -42,12 +42,10 @@ const ItemPage = () => {
         loadItem();
     }, [inventoryId, itemId, getItemById, user, hasLiked]);
 
-    if (loading) return <Spinner animation="border" />;
-    if (!item) return <p>Item not found</p>;
+    if (loading) return <div className="d-flex justify-content-center mt-5"><Spinner animation="border" /></div>;
+    if (!item) return <p className="text-center text-danger mt-4">Item not found</p>;
 
-    const handleEdit = () => {
-        navigate(`/inventory/${inventoryId}/item/${itemId}/edit`);
-    };
+    const handleEdit = () => navigate(`/inventory/${inventoryId}/item/${itemId}/edit`);
 
     const handleDelete = async () => {
         if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -89,53 +87,17 @@ const ItemPage = () => {
                 }}
             />
 
-            <Card className="mb-3 d-flex flex-row p-3 shadow-none border-0">
-                <div>
-                    <div
-                        style={{
-                            width: "400px",
-                            height: "400px",
-                            backgroundColor: "#ddd",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "0.9rem",
-                            color: "#555",
-                            flexShrink: 0,
-                        }}
-                    >
-                        Cover Image
-                    </div>
-                    <div className="mt-3 d-flex gap-2 align-items-center">
-                        {canEdit && (
-                            <>
-                                <Tooltip message="Edit item" showIcon={false}>
-                                    <Button
-                                        variant="outline-secondary"
-                                        onClick={handleEdit}
-                                        className="d-flex align-items-center justify-content-center p-2"
-                                        style={{ width: "40px", height: "40px" }}
-                                    >
-                                        <i className="bi bi-pencil fs-5"></i>
-                                    </Button>
-                                </Tooltip>
+            <Card className="p-4 shadow-sm">
+                {/* Верхняя панель с названием, действиями и лайком */}
+                <div className="d-flex justify-content-between align-items-start mb-3">
+                    <h3 className="mb-0">{item.name}</h3>
 
-                                <Tooltip message="Delete item" showIcon={false}>
-                                    <Button
-                                        variant="outline-danger"
-                                        onClick={handleDelete}
-                                        className="d-flex align-items-center justify-content-center p-2"
-                                        style={{ width: "40px", height: "40px" }}
-                                    >
-                                        <i className="bi bi-trash fs-5"></i>
-                                    </Button>
-                                </Tooltip>
-                            </>
-                        )}
-                        <Tooltip message="Log in to like this item" show={!user}>
+                    <div className="d-flex align-items-center gap-2">
+                        {/* Лайк */}
+                        <Tooltip message={!user ? "Log in to like this item" : ""} show={!user}>
                             <Button
                                 variant={isLiked ? "primary" : "outline-primary"}
-                                className="w-auto px-3 py-1 d-flex align-items-center gap-2"
+                                className="d-flex align-items-center gap-2 px-3 py-1"
                                 onClick={handleLike}
                                 disabled={!user}
                                 style={!user ? { pointerEvents: "none" } : {}}
@@ -144,39 +106,59 @@ const ItemPage = () => {
                                 {likes}
                             </Button>
                         </Tooltip>
+
+                        {canEdit && (
+                            <Dropdown align="end">
+                                <Dropdown.Toggle
+                                    variant="link"
+                                    bsPrefix="bg-transparent border-0"
+                                    className="text-dark"
+                                    id="item-actions"
+                                >
+                                    <i className="bi bi-three-dots-vertical fs-5"></i>
+                                </Dropdown.Toggle>
+
+                                <Dropdown.Menu>
+                                    <Dropdown.Item onClick={handleEdit}>
+                                        <i className="bi bi-pencil me-2"></i> Edit Item
+                                    </Dropdown.Item>
+                                    <Dropdown.Item className="text-danger" onClick={handleDelete}>
+                                        <i className="bi bi-trash me-2"></i> Delete Item
+                                    </Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        )}
                     </div>
                 </div>
 
-                <div className="flex-grow-1 ms-5 d-flex flex-column">
-                    <div>
-                        <h3>{item.name}</h3>
-                        <div className="mb-2">
-                            <strong>Inventory:</strong> {item.inventory?.title || "—"} <br />
-                            <strong>Custom ID:</strong> {item.customId} <br />
-                            <strong>Created By:</strong> {item.creator?.username || "—"} <br />
-                            <strong>Created:</strong> {new Date(item.createdAt).toLocaleDateString()} <br />
+                <div className="mb-3 text-muted">
+                    <div><strong>Inventory:</strong> {item.inventory?.title || "—"}</div>
+                    <div><strong>Custom ID:</strong> {item.customId || "—"}</div>
+                    <div><strong>Created By:</strong> {item.creator?.username || "—"}</div>
+                    <div><strong>Created:</strong> {new Date(item.createdAt).toLocaleDateString()}</div>
+                </div>
+
+                {item.customValues?.length > 0 && (
+                    <div className="mt-3">
+                        <h6 className="fw-semibold mb-2">Custom Fields:</h6>
+                        <div className="d-flex flex-wrap gap-4">
+                            {item.customValues
+                                .filter(cv => cv.customField?.showInTable)
+                                .map(cv => (
+                                    <div key={cv.id}>
+                                        <strong>{cv.customField?.name || "Field"}:</strong> {cv.value ?? "-"}
+                                    </div>
+                                ))}
                         </div>
-
-                        {item.customValues?.length > 0 && (
-                            <div className="mt-2 d-flex flex-wrap gap-3">
-                                {item.customValues
-                                    .filter(cv => cv.customField?.showInTable)
-                                    .map(cv => (
-                                        <div key={cv.id} className="text">
-                                            <strong>{cv.customField?.name || "Field"}:</strong> {cv.value ?? "-"}
-                                        </div>
-                                    ))}
-                            </div>
-                        )}
-
-                        {item.description && (
-                            <div className="mb-2">
-                                <strong>Description:</strong>
-                                <div>{item.description}</div>
-                            </div>
-                        )}
                     </div>
-                </div>
+                )}
+
+                {item.description && (
+                    <div className="mt-4">
+                        <h6 className="fw-semibold mb-2">Description:</h6>
+                        <div>{item.description}</div>
+                    </div>
+                )}
             </Card>
         </div>
     );

@@ -3,15 +3,15 @@ import { useInventory } from "../../context/InventoryContext";
 import InventoryTableBase from "../../components/InventoryTableBase";
 
 export default function AllInventories() {
-    const { allInventories, fetchAllInventories, loading } = useInventory();
+    const { latestInventories, fetchLatestInventories, loading } = useInventory();
 
     useEffect(() => {
-        fetchAllInventories();
+        fetchLatestInventories();
     }, []);
 
     if (loading) return <p>Loading inventories...</p>;
 
     return (
-        <InventoryTableBase data={allInventories} />
+        <InventoryTableBase data={latestInventories} />
     );
 }

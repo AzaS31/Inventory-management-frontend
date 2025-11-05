@@ -38,6 +38,7 @@ export default function InventoryDetailsFields({
                             value={description}
                             onChange={(e) => onChange("description", e.target.value)}
                             placeholder="Describe your collection in Markdown"
+                            required
                         />
                     </Col>
                     <Col md={6}>
@@ -58,6 +59,7 @@ export default function InventoryDetailsFields({
                 <Form.Select
                     value={categoryId}
                     onChange={(e) => onChange("categoryId", e.target.value)}
+                    required
                 >
                     <option value="">Select category...</option>
                     {categories.map((cat) => (

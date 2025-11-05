@@ -53,8 +53,12 @@ export default function Header() {
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="ms-auto align-items-center position-relative">
-                        <Form className="d-flex me-3" onSubmit={handleSearch} autoComplete="off">
+                    <Nav className="ms-auto align-items-lg-center">
+                        <Form
+                            className="d-flex w-100 w-lg-auto me-lg-3 mt-2 mb-2 mt-lg-0 mb-lg-0"
+                            onSubmit={handleSearch}
+                            autoComplete="off"
+                        >
                             <InputGroup>
                                 <Form.Control
                                     type="search"
@@ -73,7 +77,7 @@ export default function Header() {
 
                             {showSuggestions && suggestions.length > 0 && (
                                 <ListGroup
-                                    className="position-absolute w-100 mt-1 shadow-sm"
+                                    className="position-absolute w-100 shadow-sm"
                                     style={{
                                         top: "100%",
                                         zIndex: 10,
@@ -81,6 +85,8 @@ export default function Header() {
                                         borderRadius: "0.25rem",
                                         maxHeight: "250px",
                                         overflowY: "auto",
+                                        left: 0,
+                                        right: 0,
                                     }}
                                 >
                                     {suggestions.map((tag) => (
@@ -100,47 +106,42 @@ export default function Header() {
 
                         {!user && (
                             <>
-                                <Button as={Link} to="/login" variant="outline-light" className="me-2">
+                                <Button as={Link} to="/login" variant="outline-light" className="w-100 w-lg-auto mb-2 me-lg-2">
                                     Login
                                 </Button>
-                                <Button as={Link} to="/register" variant="warning">
+                                <Button as={Link} to="/register" variant="warning" className="w-100 w-lg-auto mb-2 mb-lg-0">
                                     Sign-up
                                 </Button>
                             </>
                         )}
 
                         {user && (
-                            <>
-                                <span className="text-white me-2">{user.username}</span>
+                            <div className="d-flex flex-column flex-lg-row align-items-lg-center w-100 w-lg-auto">
 
-                                <div
-                                    className="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2"
-                                    style={{
-                                        width: "32px",
-                                        height: "32px",
-                                        color: "white",
-                                        fontWeight: "bold",
-                                        textTransform: "uppercase",
-                                        fontSize: "0.9rem",
-                                    }}
-                                >
-                                    {user.username[0]}
+                                <div className="d-flex align-items-center mb-2 mb-lg-0 me-lg-2 text-nowrap">
+                                    <span className="text-white me-2">{user.username}</span>
+                                    <div
+                                        className="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                                        style={{ width: "32px", height: "32px", color: "white", fontWeight: "bold", textTransform: "uppercase", fontSize: "0.9rem" }}
+                                    >
+                                        {user.username[0]}
+                                    </div>
                                 </div>
 
-                                <Button as={Link} to="/profile" variant="outline-light" className="me-2">
+                                <Button as={Link} to="/profile" variant="outline-light" className="w-100 w-lg-auto mb-2 me-lg-2 mb-lg-0 text-nowrap">
                                     Profile
                                 </Button>
 
                                 {user.role?.name === "ADMIN" && (
-                                    <Button as={Link} to="/admin" variant="outline-light" className="me-2">
+                                    <Button as={Link} to="/admin" variant="outline-light" className="w-100 w-lg-auto mb-2 me-lg-2 mb-lg-0 text-nowrap">
                                         Admin Panel
                                     </Button>
                                 )}
 
-                                <Button variant="warning" onClick={logout}>
+                                <Button variant="warning" onClick={logout} className="w-100 w-lg-auto mb-2 mb-lg-0">
                                     Logout
                                 </Button>
-                            </>
+                            </div>
                         )}
                     </Nav>
                 </Navbar.Collapse>

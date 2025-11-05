@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext, useEffect, useCallback } from "react";
 import { CategoryService } from "../services/CategoryService";
 
 export const CategoryContext = createContext();
@@ -8,7 +8,7 @@ export const CategoryProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchCategories = async () => {
+    const fetchCategories = useCallback(async () => {
         setLoading(true);
         try {
             const data = await CategoryService.getAll();
@@ -18,7 +18,7 @@ export const CategoryProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []); 
 
     return (
         <CategoryContext.Provider

@@ -1,6 +1,6 @@
 import api from "../api/axios";
 
-export const tagService = {
+export const TagsService = {
     async getAll() {
         const res = await api.get("/tags");
         return res.data;

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import { InventoryAccessService } from "../services/InventoryAccessService";
 
 const InventoryAccessContext = createContext();
@@ -8,7 +8,7 @@ export const InventoryAccessProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchAccessList = async (inventoryId) => {
+    const fetchAccessList = useCallback(async (inventoryId) => {
         setLoading(true);
         try {
             const list = await InventoryAccessService.getAccessList(inventoryId);
@@ -19,9 +19,9 @@ export const InventoryAccessProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const grantAccess = async (inventoryId, email) => {
+    const grantAccess = useCallback(async (inventoryId, email) => {
         try {
             const access = await InventoryAccessService.addAccess(inventoryId, email);
             setAccessList((prev) => [...prev, access]);
@@ -29,9 +29,9 @@ export const InventoryAccessProvider = ({ children }) => {
             console.error(err);
             throw err;
         }
-    };
+    }, []);
 
-    const revokeAccess = async (inventoryId, userId) => {
+    const revokeAccess = useCallback(async (inventoryId, userId) => {
         try {
             await InventoryAccessService.removeAccess(inventoryId, userId);
             setAccessList((prev) => prev.filter((a) => a.user.id !== userId));
@@ -39,7 +39,7 @@ export const InventoryAccessProvider = ({ children }) => {
             console.error(err);
             throw err;
         }
-    };
+    }, []);
 
     return (
         <InventoryAccessContext.Provider

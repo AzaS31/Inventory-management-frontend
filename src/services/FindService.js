@@ -1,6 +1,6 @@
 import api from "../api/axios";
 
-export const searchService = {
+export const FindService = {
     async search(query) {
         try {
             const response = await api.get(`/search`, {

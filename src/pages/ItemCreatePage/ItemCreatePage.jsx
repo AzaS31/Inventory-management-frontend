@@ -142,6 +142,7 @@ export default function ItemCreatePage() {
                             placeholder="Enter description"
                             value={itemData.description}
                             onChange={(e) => handleBaseChange("description", e.target.value)}
+                            required
                         />
                     </Form.Group>
 

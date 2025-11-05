@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Form, Badge, Spinner } from "react-bootstrap";
 import { useTags } from "../../context/TagContext";
 
-export default function TagSelector({ value = [], onChange }) {
+export default function TagSelector({ value = [], onChange, assignTags, inventoryId }) {
     const { searchTags } = useTags();
     const [input, setInput] = useState("");
     const [suggestions, setSuggestions] = useState([]);
@@ -37,7 +37,8 @@ export default function TagSelector({ value = [], onChange }) {
     };
 
     const handleRemoveTag = (tagName) => {
-        onChange(value.filter((t) => t !== tagName));
+        const newTags = value.filter(t => t !== tagName);
+        onChange(newTags);
     };
 
     const handleKeyDown = (e) => {
