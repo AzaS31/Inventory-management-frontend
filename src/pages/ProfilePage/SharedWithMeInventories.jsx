@@ -59,7 +59,7 @@ export default function SharedWithMeInventories() {
             await fetchSharedWithMeInventories();
         } catch (error) {
             console.error(error);
-            notify("Selected inventories removed");
+            notify("Failed to delete inventories", "error");
         } finally {
             setDeleting(false);
         }
@@ -76,25 +76,27 @@ export default function SharedWithMeInventories() {
 
     return (
         <>
-            <div className="d-flex justify-content-start mb-2 gap-2">
-                <Button
-                    variant="outline-secondary"
-                    onClick={handleEdit}
-                    disabled={selected.length !== 1}
-                >
-                    Edit
-                </Button>
-
-                {user?.role?.name === "ADMIN" && (
+            {sharedWithMeInventories.length > 0 && (
+                <div className="d-flex justify-content-start mb-2 gap-2">
                     <Button
-                        variant="outline-danger"
-                        onClick={handleDelete}
-                        disabled={selected.length === 0 || deleting}
+                        variant="outline-secondary"
+                        onClick={handleEdit}
+                        disabled={selected.length !== 1}
                     >
-                        {deleting ? "Deleting..." : "Delete"}
+                        Edit
                     </Button>
-                )}
-            </div>
+
+                    {user?.role?.name === "ADMIN" && (
+                        <Button
+                            variant="outline-danger"
+                            onClick={handleDelete}
+                            disabled={selected.length === 0 || deleting}
+                        >
+                            {deleting ? "Deleting..." : "Delete"}
+                        </Button>
+                    )}
+                </div>
+            )}
 
             <InventoryTableBase
                 data={sharedWithMeInventories}

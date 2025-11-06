@@ -54,12 +54,23 @@ const GeneralSettingsTab = ({ inventory }) => {
     const handleSave = async () => {
         try {
             setSaving(true);
-            await updateInventory(inventory.id, form, inventory.ownerId);
+
+            const payload = {
+                ...form,
+                expectedVersion: inventory.version,
+            };
+
+            await updateInventory(inventory.id, payload, inventory.ownerId);
             await assignTags(inventory.id, tags);
+
             notify("Inventory updated successfully!");
         } catch (err) {
             console.error(err);
-            notify("Failed to update inventory");
+            if (err.response?.status === 409) {
+                notify("This inventory was modified by another user. Please reload and try again.", "warning");
+            } else {
+                notify("Failed to update inventory", "danger");
+            }
         } finally {
             setSaving(false);
         }

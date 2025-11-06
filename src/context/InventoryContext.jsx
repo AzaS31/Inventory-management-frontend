@@ -217,7 +217,7 @@ export const InventoryProvider = ({ children }) => {
                 sharedWithMeInventories,
                 userInventories,
                 sharedWithUserInventories,
-                loading, 
+                loading,
                 error,
                 fetchLatestInventories,
                 fetchTopFiveInventories,

@@ -8,6 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import CustomFieldsForm from "../ItemCreatePage/CustomFieldsForm";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import { getAccessInfo } from "../../utils/accessUtils";
+import { useNotification } from "../../context/NotificationContext";
 
 export default function ItemEditPage() {
     const { inventoryId, itemId } = useParams();
@@ -17,6 +18,7 @@ export default function ItemEditPage() {
     const { getItemById, updateItem } = useItem();
     const { getInventoryById } = useInventory();
     const { user } = useAuth();
+    const { notify } = useNotification();
 
     const [inventory, setInventory] = useState(null);
     const [item, setItem] = useState(null);
@@ -92,10 +94,18 @@ export default function ItemEditPage() {
 
         try {
             await updateItem(inventoryId, itemId, item.version, payload, formattedValues);
+            notify("Item updated successfully!", "success");
             navigate(`/inventory/${inventoryId}/item/${itemId}`);
         } catch (err) {
             console.error("Error updating item:", err);
-            alert("Error updating item");
+
+            if (err.response?.status === 409) {
+                notify("This item was modified by another user. Please reload and try again.", "warning", 5000);
+            } else if (err.response?.status === 400) {
+                notify("Invalid data. Please check your input.", "danger");
+            } else {
+                notify("Failed to update item. Please try again later.", "danger");
+            }
         }
     };
 

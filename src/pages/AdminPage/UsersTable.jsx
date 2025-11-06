@@ -1,5 +1,6 @@
 import { Table, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function UsersTable({
     users = [],
@@ -9,6 +10,7 @@ export default function UsersTable({
     selectAll = false,
 }) {
     const navigate = useNavigate();
+    const { user: currentUser } = useAuth();
 
     const getRoleName = (roleId) => {
         switch (roleId) {
@@ -62,7 +64,25 @@ export default function UsersTable({
                             />
                         </td>
                         <td>{index + 1}</td>
-                        <td>{user.username}</td>
+                        <td>
+                            <span
+                                style={{
+                                    color: "blue",
+                                    textDecoration: "underline",
+                                    cursor: "pointer",
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (currentUser && currentUser.id === user.id) {
+                                        navigate("/profile");
+                                    } else {
+                                        navigate(`/users/${user.id}`);
+                                    }
+                                }}
+                            >
+                                {user.username}
+                            </span>
+                        </td>
                         <td>{user.email}</td>
                         <td>{getRoleName(user.roleId)}</td>
                         <td>{getStatusText(user.isActive)}</td>

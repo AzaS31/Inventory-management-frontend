@@ -3,6 +3,7 @@ import { Table, Form } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import Pagination from "./Pagination";
 import ReactMarkdown from "react-markdown";
+import { useAuth } from "../context/AuthContext"; 
 
 export default function InventoryTableBase({
     data = [],
@@ -13,6 +14,8 @@ export default function InventoryTableBase({
 }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const { user } = useAuth(); 
+
     const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -76,9 +79,7 @@ export default function InventoryTableBase({
                             <td>{inv.category?.name || "-"}</td>
                             <td>
                                 {inv.description ? (
-                                    <ReactMarkdown>
-                                        {inv.description}
-                                    </ReactMarkdown>
+                                    <ReactMarkdown>{inv.description}</ReactMarkdown>
                                 ) : (
                                     "-"
                                 )}
@@ -94,7 +95,12 @@ export default function InventoryTableBase({
                                         }}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            navigate(`/users/${inv.ownerId}`);
+
+                                            if (user && user.id === inv.ownerId) {
+                                                navigate("/profile");
+                                            } else {
+                                                navigate(`/users/${inv.ownerId}`);
+                                            }
                                         }}
                                     >
                                         {inv.owner.username}
