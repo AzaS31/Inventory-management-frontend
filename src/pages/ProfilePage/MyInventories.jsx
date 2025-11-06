@@ -10,8 +10,7 @@ export default function MyInventories() {
     const { myInventories, fetchMyInventories, fetchSortedInventories, deleteInventoriesBatch } = useInventory();
     const [selected, setSelected] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [sortBy, setSortBy] = useState("title");
-    const [order, setOrder] = useState("asc");
+    const [sortOption, setSortOption] = useState("title-asc");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -34,8 +33,7 @@ export default function MyInventories() {
     };
 
     const handleSort = (newSortBy, newOrder) => {
-        setSortBy(newSortBy);
-        setOrder(newOrder);
+        setSortOption(`${newSortBy}-${newOrder}`);
         fetchSortedInventories(newSortBy, newOrder);
     };
 
@@ -67,7 +65,7 @@ export default function MyInventories() {
 
     return (
         <>
-            <InventorySort sortBy={sortBy} order={order} onSort={handleSort} />
+            <InventorySort sortOption={sortOption} onSort={handleSort} />
             <TableToolbar
                 selectedCount={selected.length}
                 onCreate={handleCreate}
