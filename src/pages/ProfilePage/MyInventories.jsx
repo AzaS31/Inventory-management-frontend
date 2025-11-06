@@ -6,24 +6,28 @@ import InventoryTableBase from "../../components/InventoryTableBase";
 import TableToolbar from "../../components/TableToolbar";
 
 export default function MyInventories() {
-    const { myInventories, fetchMyInventories, deleteInventoriesBatch, loading } = useInventory();
+    const { myInventories, fetchMyInventories, deleteInventoriesBatch } = useInventory();
     const [selected, setSelected] = useState([]);
+    const [loading, setLoading] = useState(false); // 🔹 локальный loading
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchMyInventories();
-    }, []);
+        const fetchData = async () => {
+            setLoading(true);
+            await fetchMyInventories();
+            setLoading(false);
+        };
+        fetchData();
+    }, [fetchMyInventories]);
 
     const handleSelect = (id) => {
-        setSelected((prev) =>
-            prev.includes(id)
-                ? prev.filter((x) => x !== id)
-                : [...prev, id]
+        setSelected(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
         );
     };
 
     const handleSelectAll = (checked) => {
-        setSelected(checked ? myInventories.map((i) => i.id) : []);
+        setSelected(checked ? myInventories.map(i => i.id) : []);
     };
 
     const handleCreate = () => navigate("/inventory/create");

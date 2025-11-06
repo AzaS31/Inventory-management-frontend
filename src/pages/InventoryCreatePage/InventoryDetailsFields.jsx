@@ -1,4 +1,5 @@
-import { Form, Row, Col } from "react-bootstrap";
+import { useState } from "react";
+import { Form, Button } from "react-bootstrap";
 import CustomIdFormatBuilder from "../../components/CustomIdFormatBuilder";
 import TagSelector from "./TagSelector";
 import ReactMarkdown from "react-markdown";
@@ -13,6 +14,7 @@ export default function InventoryDetailsFields({
     tags,
     onChange,
 }) {
+    const [showPreview, setShowPreview] = useState(false);
     const access = isPublic ? "public" : "private";
 
     return (
@@ -30,28 +32,33 @@ export default function InventoryDetailsFields({
 
             <Form.Group className="mb-3">
                 <Form.Label>Description (Markdown supported)</Form.Label>
-                <Row>
-                    <Col md={6}>
-                        <Form.Control
-                            as="textarea"
-                            rows={6}
-                            value={description}
-                            onChange={(e) => onChange("description", e.target.value)}
-                            placeholder="Describe your collection in Markdown"
-                            required
-                        />
-                    </Col>
-                    <Col md={6}>
-                        <div
-                            className="border p-2"
-                            style={{ height: "100%", overflowY: "auto", backgroundColor: "#f8f9fa" }}
-                        >
-                            <ReactMarkdown>
-                                {description || "Preview will appear here..."}
-                            </ReactMarkdown>
-                        </div>
-                    </Col>
-                </Row>
+                <Form.Control
+                    as="textarea"
+                    rows={6}
+                    value={description}
+                    onChange={(e) => onChange("description", e.target.value)}
+                    placeholder="Describe your collection in Markdown"
+                    required
+                />
+                <div className="mt-2">
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setShowPreview((prev) => !prev)}
+                    >
+                        {showPreview ? "Hide Preview" : "Show Preview"}
+                    </Button>
+                </div>
+                {showPreview && (
+                    <div
+                        className="border p-2 mt-2"
+                        style={{ backgroundColor: "#f8f9fa", maxHeight: "300px", overflowY: "auto" }}
+                    >
+                        <ReactMarkdown>
+                            {description || "Preview will appear here..."}
+                        </ReactMarkdown>
+                    </div>
+                )}
             </Form.Group>
 
             <Form.Group className="mb-3">

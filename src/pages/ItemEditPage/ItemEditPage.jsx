@@ -26,6 +26,10 @@ export default function ItemEditPage() {
     const [itemData, setItemData] = useState({
         name: "",
         description: "",
+        author: "",
+        year: "",
+        pages: "",
+        version: 0,
     });
 
     const [customValues, setCustomValues] = useState({});
@@ -41,6 +45,10 @@ export default function ItemEditPage() {
                 setItemData({
                     name: it.name,
                     description: it.description,
+                    author: it.author,
+                    year: it.year?.toString() || "",
+                    pages: it.pages?.toString() || "",
+                    version: it.version,
                 });
 
                 const values = {};
@@ -74,10 +82,16 @@ export default function ItemEditPage() {
         const formattedValues = Object.entries(customValues).map(([customFieldId, value]) => ({
             customFieldId,
             value: value?.toString() ?? "",
-        }));
+        })) || [];
+
+        const payload = {
+            ...itemData,
+            year: parseInt(itemData.year, 10),
+            pages: parseInt(itemData.pages, 10),
+        };
 
         try {
-            await updateItem(inventoryId, itemId, itemData, formattedValues);
+            await updateItem(inventoryId, itemId, item.version, payload, formattedValues);
             navigate(`/inventory/${inventoryId}/item/${itemId}`);
         } catch (err) {
             console.error("Error updating item:", err);
@@ -155,6 +169,39 @@ export default function ItemEditPage() {
                             placeholder="Enter description"
                             value={itemData.description}
                             onChange={(e) => handleBaseChange("description", e.target.value)}
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Author</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Enter author"
+                            value={itemData.author}
+                            onChange={(e) => handleBaseChange("author", e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Year</Form.Label>
+                        <Form.Control
+                            type="number"
+                            placeholder="Enter year"
+                            value={itemData.year}
+                            onChange={(e) => handleBaseChange("year", e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Pages</Form.Label>
+                        <Form.Control
+                            type="number"
+                            placeholder="Enter number of pages"
+                            value={itemData.pages}
+                            onChange={(e) => handleBaseChange("pages", e.target.value)}
+                            required
                         />
                     </Form.Group>
 

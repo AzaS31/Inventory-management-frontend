@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Form, Badge, Spinner } from "react-bootstrap";
 import { useTags } from "../../context/TagContext";
 
-export default function TagSelector({ value = [], onChange, assignTags, inventoryId }) {
+export default function TagSelector({ value = [], onChange }) {
     const { searchTags } = useTags();
     const [input, setInput] = useState("");
     const [suggestions, setSuggestions] = useState([]);

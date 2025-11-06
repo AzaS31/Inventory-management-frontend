@@ -24,6 +24,9 @@ export default function ItemCreatePage() {
     const [itemData, setItemData] = useState({
         name: "",
         description: "",
+        author: "",
+        year: "",
+        pages: "",
     });
 
     const [customValues, setCustomValues] = useState({});
@@ -65,8 +68,14 @@ export default function ItemCreatePage() {
             })
         );
 
+        const payload = {
+            ...itemData,
+            year: parseInt(itemData.year, 10),
+            pages: parseInt(itemData.pages, 10),
+        };
+
         try {
-            await createItem(inventoryId, itemData, formattedValues);
+            await createItem(inventoryId, payload, formattedValues);
             navigate(`/inventory/${inventoryId}`);
         } catch (err) {
             console.error("Error creating item:", err);
@@ -142,6 +151,39 @@ export default function ItemCreatePage() {
                             placeholder="Enter description"
                             value={itemData.description}
                             onChange={(e) => handleBaseChange("description", e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Author</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Enter author"
+                            value={itemData.author}
+                            onChange={(e) => handleBaseChange("author", e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Year</Form.Label>
+                        <Form.Control
+                            type="number"
+                            placeholder="Enter year"
+                            value={itemData.year}
+                            onChange={(e) => handleBaseChange("year", e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Pages</Form.Label>
+                        <Form.Control
+                            type="number"
+                            placeholder="Enter number of pages"
+                            value={itemData.pages}
+                            onChange={(e) => handleBaseChange("pages", e.target.value)}
                             required
                         />
                     </Form.Group>

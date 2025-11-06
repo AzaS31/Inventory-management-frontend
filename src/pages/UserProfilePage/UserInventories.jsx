@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { useInventory } from "../../context/InventoryContext";
 import InventoryTableBase from "../../components/InventoryTableBase";
@@ -6,13 +6,18 @@ import { useParams } from "react-router-dom";
 
 export default function UserInventories() {
     const { id: userId } = useParams();
-    const { userInventories, fetchUserInventories, loading } = useInventory();
+    const { userInventories, fetchUserInventories } = useInventory();
+    const [loading, setLoading] = useState(false); 
 
     useEffect(() => {
-        if (userId) {
-            fetchUserInventories(userId);
-        }
-    }, [userId]);
+        const fetchData = async () => {
+            if (!userId) return;
+            setLoading(true);
+            await fetchUserInventories(userId);
+            setLoading(false);
+        };
+        fetchData();
+    }, [userId, fetchUserInventories]);
 
     if (loading)
         return (
@@ -23,7 +28,5 @@ export default function UserInventories() {
             </div>
         );
 
-    return (
-        <InventoryTableBase data={userInventories} />
-    )
+    return <InventoryTableBase data={userInventories} />;
 }

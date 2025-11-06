@@ -5,6 +5,7 @@ import { useInventory } from "../../../context/InventoryContext";
 import { useAuth } from "../../../context/AuthContext";
 import TagSelector from "../../InventoryCreatePage/TagSelector";
 import { useTags } from "../../../context/TagContext";
+import { useNotification } from "../../../context/NotificationContext";
 
 const GeneralSettingsTab = ({ inventory }) => {
     const { user } = useAuth();
@@ -18,10 +19,11 @@ const GeneralSettingsTab = ({ inventory }) => {
         categoryId: inventory?.categoryId || "",
         isPublic: inventory?.isPublic ?? true,
     });
-    
+
     const [tags, setTags] = useState([]);
     const [loadingTags, setLoadingTags] = useState(false);
     const [saving, setSaving] = useState(false);
+    const { notify } = useNotification();
 
     useEffect(() => {
         if (!categories.length) fetchCategories();
@@ -54,10 +56,10 @@ const GeneralSettingsTab = ({ inventory }) => {
             setSaving(true);
             await updateInventory(inventory.id, form, inventory.ownerId);
             await assignTags(inventory.id, tags);
-            alert("Inventory updated successfully!");
+            notify("Inventory updated successfully!");
         } catch (err) {
             console.error(err);
-            alert("Failed to update inventory");
+            notify("Failed to update inventory");
         } finally {
             setSaving(false);
         }

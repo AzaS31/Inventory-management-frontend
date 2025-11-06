@@ -15,33 +15,39 @@ import { ItemLikeProvider } from "./context/ItemLikeContext";
 import { CommentProvider } from './context/CommentContext.jsx';
 import { SearchProvider } from './context/SearchContext.jsx';
 import { TagProvider } from './context/TagContext.jsx';
+import { ConfirmProvider } from './context/ConfirmContext.jsx';
+import { NotificationProvider } from './context/NotificationContext.jsx'; // ✅ добавь импорт
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <UserProvider>
-          <InventoryProvider>
-            <InventoryAccessProvider>
-              <CategoryProvider>
-                <ItemProvider>
-                  <ItemLikeProvider>
-                    <CustomFieldProvider>
-                      <CommentProvider>
-                        <SearchProvider>
-                          <TagProvider>
-                            <App />
-                          </TagProvider>
-                        </SearchProvider>
-                      </CommentProvider>
-                    </CustomFieldProvider>
-                  </ItemLikeProvider>
-                </ItemProvider>
-              </CategoryProvider>
-            </InventoryAccessProvider>
-          </InventoryProvider>
-        </UserProvider>
-      </AuthProvider>
+      <NotificationProvider>
+        <AuthProvider>
+          <UserProvider>
+            <InventoryProvider>
+              <InventoryAccessProvider>
+                <CategoryProvider>
+                  <ItemProvider>
+                    <ItemLikeProvider>
+                      <CustomFieldProvider>
+                        <CommentProvider>
+                          <SearchProvider>
+                            <TagProvider>
+                              <ConfirmProvider>
+                                <App />
+                              </ConfirmProvider>
+                            </TagProvider>
+                          </SearchProvider>
+                        </CommentProvider>
+                      </CustomFieldProvider>
+                    </ItemLikeProvider>
+                  </ItemProvider>
+                </CategoryProvider>
+              </InventoryAccessProvider>
+            </InventoryProvider>
+          </UserProvider>
+        </AuthProvider>
+      </NotificationProvider>
     </BrowserRouter>
-  </StrictMode>,
-)
+  </StrictMode>
+);

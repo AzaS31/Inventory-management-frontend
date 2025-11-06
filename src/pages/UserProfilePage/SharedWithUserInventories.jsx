@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { useInventory } from "../../context/InventoryContext";
 import InventoryTableBase from "../../components/InventoryTableBase";
@@ -6,13 +6,18 @@ import { useParams } from "react-router-dom";
 
 export default function SharedWithUserInventories() {
     const { id: userId } = useParams();
-    const { sharedWithUserInventories, fetchSharedWithUserInventories, loading } = useInventory();
+    const { sharedWithUserInventories, fetchSharedWithUserInventories } = useInventory();
+    const [loading, setLoading] = useState(false); 
 
     useEffect(() => {
-        if (userId) {
-            fetchSharedWithUserInventories(userId);
-        }
-    }, [userId]);
+        const fetchData = async () => {
+            if (!userId) return;
+            setLoading(true);
+            await fetchSharedWithUserInventories(userId);
+            setLoading(false);
+        };
+        fetchData();
+    }, [userId, fetchSharedWithUserInventories]);
 
     if (loading)
         return (
@@ -23,7 +28,5 @@ export default function SharedWithUserInventories() {
             </div>
         );
 
-    return (
-        <InventoryTableBase data={sharedWithUserInventories} />
-    )
+    return <InventoryTableBase data={sharedWithUserInventories} />;
 }

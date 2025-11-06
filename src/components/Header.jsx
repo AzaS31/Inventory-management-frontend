@@ -46,106 +46,134 @@ export default function Header() {
     };
 
     return (
-        <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
-            <Container>
-                <Navbar.Brand as={Link} to="/">
-                    Home
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="ms-auto align-items-lg-center">
-                        <Form
-                            className="d-flex w-100 w-lg-auto me-lg-3 mt-2 mb-2 mt-lg-0 mb-lg-0"
-                            onSubmit={handleSearch}
-                            autoComplete="off"
-                        >
-                            <InputGroup>
-                                <Form.Control
-                                    type="search"
-                                    placeholder="Search..."
-                                    value={query}
-                                    onChange={(e) => {
-                                        setQuery(e.target.value);
-                                        setShowSuggestions(true);
-                                    }}
-                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                                />
-                                <Button type="submit" variant="light">
-                                    <i className="bi bi-search"></i>
-                                </Button>
-                            </InputGroup>
+        <>
+            <Navbar bg="dark" variant="dark" expand="lg">
+                <Container>
+                    <Navbar.Brand as={Link} to="/">
+                        Home
+                    </Navbar.Brand>
 
-                            {showSuggestions && suggestions.length > 0 && (
-                                <ListGroup
-                                    className="position-absolute w-100 shadow-sm"
-                                    style={{
-                                        top: "100%",
-                                        zIndex: 10,
-                                        backgroundColor: "white",
-                                        borderRadius: "0.25rem",
-                                        maxHeight: "250px",
-                                        overflowY: "auto",
-                                        left: 0,
-                                        right: 0,
-                                    }}
-                                >
-                                    {suggestions.map((tag) => (
-                                        <ListGroup.Item
-                                            key={tag.id}
-                                            action
-                                            onClick={() => handleSelect(tag.name)}
-                                            style={{ cursor: "pointer" }}
-                                        >
-                                            <i className="bi bi-tag text-secondary me-2"></i>
-                                            {tag.name}
-                                        </ListGroup.Item>
-                                    ))}
-                                </ListGroup>
+                    <Navbar.Toggle aria-controls="main-navbar" />
+                    <Navbar.Collapse id="main-navbar">
+                        <Nav className="me-auto align-items-lg-center">
+                            {user && (
+                                <>
+                                    <Nav.Link as={Link} to="/profile">
+                                        Profile
+                                    </Nav.Link>
+
+                                    {user.role?.name === "ADMIN" && (
+                                        <Nav.Link as={Link} to="/admin">
+                                            Admin Panel
+                                        </Nav.Link>
+                                    )}
+                                </>
                             )}
-                        </Form>
+                        </Nav>
 
-                        {!user && (
-                            <>
-                                <Button as={Link} to="/login" variant="outline-light" className="w-100 w-lg-auto mb-2 me-lg-2">
-                                    Login
-                                </Button>
-                                <Button as={Link} to="/register" variant="warning" className="w-100 w-lg-auto mb-2 mb-lg-0">
-                                    Sign-up
-                                </Button>
-                            </>
-                        )}
-
-                        {user && (
-                            <div className="d-flex flex-column flex-lg-row align-items-lg-center w-100 w-lg-auto">
-
-                                <div className="d-flex align-items-center mb-2 mb-lg-0 me-lg-2 text-nowrap">
-                                    <span className="text-white me-2">{user.username}</span>
-                                    <div
-                                        className="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
-                                        style={{ width: "32px", height: "32px", color: "white", fontWeight: "bold", textTransform: "uppercase", fontSize: "0.9rem" }}
+                        <Nav className="ms-auto align-items-lg-center">
+                            {!user ? (
+                                <>
+                                    <Button
+                                        as={Link}
+                                        to="/login"
+                                        variant="outline-light"
+                                        className="me-lg-2 mb-2 mb-lg-0"
                                     >
-                                        {user.username[0]}
-                                    </div>
-                                </div>
-
-                                <Button as={Link} to="/profile" variant="outline-light" className="w-100 w-lg-auto mb-2 me-lg-2 mb-lg-0 text-nowrap">
-                                    Profile
-                                </Button>
-
-                                {user.role?.name === "ADMIN" && (
-                                    <Button as={Link} to="/admin" variant="outline-light" className="w-100 w-lg-auto mb-2 me-lg-2 mb-lg-0 text-nowrap">
-                                        Admin Panel
+                                        Login
                                     </Button>
-                                )}
+                                    <Button as={Link} to="/register" variant="warning" className="mb-2 mb-lg-0">
+                                        Sign-up
+                                    </Button>
+                                </>
+                            ) : (
+                                <div className="d-flex flex-column flex-lg-row align-items-lg-center">
+                                    <div className="d-flex align-items-center mb-2 mb-lg-0 me-lg-2 text-nowrap">
+                                        <span className="text-white me-2">{user.username}</span>
+                                        <div
+                                            className="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                                            style={{
+                                                width: "32px",
+                                                height: "32px",
+                                                color: "white",
+                                                fontWeight: "bold",
+                                                textTransform: "uppercase",
+                                                fontSize: "0.9rem",
+                                            }}
+                                        >
+                                            {user.username[0]}
+                                        </div>
+                                    </div>
+                                    <Button variant="warning" onClick={logout} className="mb-2 mb-lg-0">
+                                        Logout
+                                    </Button>
+                                </div>
+                            )}
+                        </Nav>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
 
-                                <Button variant="warning" onClick={logout} className="w-100 w-lg-auto mb-2 mb-lg-0">
-                                    Logout
-                                </Button>
-                            </div>
+            <Navbar
+                bg="white"
+                variant="light"
+                className="py-2 shadow-none border-bottom"
+            >
+                <Container className="justify-content-start">
+                    <Form
+                        className="search-form d-flex position-relative"
+                        onSubmit={handleSearch}
+                        autoComplete="off"
+                        style={{ maxWidth: "400px", width: "100%" }}
+                    >
+                        <InputGroup>
+                            <Form.Control
+                                type="search"
+                                placeholder="Search..."
+                                value={query}
+                                onChange={(e) => {
+                                    setQuery(e.target.value);
+                                    setShowSuggestions(true);
+                                }}
+                                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                className="search-input"
+                            />
+                            <Button type="submit" variant="outline-secondary">
+                                <i className="bi bi-search"></i>
+                            </Button>
+                        </InputGroup>
+
+                        {showSuggestions && suggestions.length > 0 && (
+                            <ListGroup
+                                className="position-absolute w-100 shadow-sm"
+                                style={{
+                                    top: "100%",
+                                    zIndex: 10,
+                                    backgroundColor: "white",
+                                    borderRadius: "0.25rem",
+                                    maxHeight: "250px",
+                                    overflowY: "auto",
+                                }}
+                            >
+                                {suggestions.map((tag) => (
+                                    <ListGroup.Item
+                                        key={tag.id}
+                                        action
+                                        onClick={() => handleSelect(tag.name)}
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        <i className="bi bi-tag text-secondary me-2"></i>
+                                        {tag.name}
+                                    </ListGroup.Item>
+                                ))}
+                            </ListGroup>
                         )}
-                    </Nav>
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+                    </Form>
+                </Container>
+            </Navbar>
+
+        </>
+
     );
+
 }

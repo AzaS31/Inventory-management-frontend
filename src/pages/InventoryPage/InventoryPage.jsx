@@ -20,15 +20,17 @@ export default function InventoryPage() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { getInventoryById, updateInventoryCustomIdFormat, deleteInventory, loading: inventoryLoading } = useInventory();
+    const { getInventoryById, updateInventoryCustomIdFormat, deleteInventory } = useInventory();
     const { fetchItems, loading: itemsLoading } = useItem();
     const { user } = useAuth();
 
     const [inventory, setInventory] = useState(null);
+    const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchAllData = async () => {
+            setLoading(true);
             try {
                 const invData = await getInventoryById(id);
                 setInventory(invData);
@@ -36,6 +38,8 @@ export default function InventoryPage() {
             } catch (err) {
                 console.error("Failed to load data:", err);
                 setError("Failed to load inventory data.");
+            } finally {
+                setLoading(false);
             }
         };
         fetchAllData();
@@ -55,8 +59,13 @@ export default function InventoryPage() {
         navigate(`?tab=${key}`, { replace: true });
     };
 
-    const isLoading = inventoryLoading || itemsLoading || !inventory;
-    if (isLoading) return <div className="d-flex justify-content-center mt-5"><Spinner animation="border" /></div>;
+    const isLoading = loading || itemsLoading;
+    if (isLoading)
+        return (
+            <div className="d-flex justify-content-center mt-5">
+                <Spinner animation="border" role="status" />
+            </div>
+        );
     if (error) return <p className="text-center text-danger mt-4">{error}</p>;
 
     const { isAdmin, isOwner, canEdit: canEditItems } = getAccessInfo({
@@ -133,13 +142,41 @@ export default function InventoryPage() {
             </Card>
 
             <Tabs id="inventory-tabs" className="mb-3" activeKey={activeTab} onSelect={handleTabSelect}>
-                {availableTabs.includes("items") && <Tab eventKey="items" title="Table of Items"><ItemTableTab inventoryId={inventory.id} canEdit={canEditItems} /></Tab>}
-                {availableTabs.includes("discussion") && <Tab eventKey="discussion" title="Discussion Section"><DiscussionTab inventoryId={inventory.id} /></Tab>}
-                {availableTabs.includes("general") && <Tab eventKey="general" title="General Settings"><GeneralSettingsTab inventory={inventory} /></Tab>}
-                {availableTabs.includes("customId") && <Tab eventKey="customId" title="Custom Inventory Numbers"><CustomIdTab inventory={inventory} onSaveCustomIdFormat={updateInventoryCustomIdFormat} /></Tab>}
-                {availableTabs.includes("access") && <Tab eventKey="access" title="Access Settings"><AccessSettingsTab inventory={inventory} /></Tab>}
-                {availableTabs.includes("customFields") && <Tab eventKey="customFields" title="Editable Set of Fields"><CustomFieldsTab inventoryId={inventory.id} /></Tab>}
-                {availableTabs.includes("statistics") && <Tab eventKey="statistics" title="Statistics / Aggregation"><StatisticsTab inventoryId={inventory.id} /></Tab>}
+                {availableTabs.includes("items") && (
+                    <Tab eventKey="items" title="Table of Items">
+                        <ItemTableTab inventoryId={inventory.id} canEdit={canEditItems} />
+                    </Tab>
+                )}
+                {availableTabs.includes("discussion") && (
+                    <Tab eventKey="discussion" title="Discussion Section">
+                        <DiscussionTab inventoryId={inventory.id} />
+                    </Tab>
+                )}
+                {availableTabs.includes("general") && (
+                    <Tab eventKey="general" title="General Settings">
+                        <GeneralSettingsTab inventory={inventory} />
+                    </Tab>
+                )}
+                {availableTabs.includes("customId") && (
+                    <Tab eventKey="customId" title="Custom Inventory Numbers">
+                        <CustomIdTab inventory={inventory} onSaveCustomIdFormat={updateInventoryCustomIdFormat} />
+                    </Tab>
+                )}
+                {availableTabs.includes("access") && (
+                    <Tab eventKey="access" title="Access Settings">
+                        <AccessSettingsTab inventory={inventory} />
+                    </Tab>
+                )}
+                {availableTabs.includes("customFields") && (
+                    <Tab eventKey="customFields" title="Editable Set of Fields">
+                        <CustomFieldsTab inventoryId={inventory.id} />
+                    </Tab>
+                )}
+                {availableTabs.includes("statistics") && (
+                    <Tab eventKey="statistics" title="Statistics / Aggregation">
+                        <StatisticsTab inventoryId={inventory.id} />
+                    </Tab>
+                )}
             </Tabs>
         </div>
     );

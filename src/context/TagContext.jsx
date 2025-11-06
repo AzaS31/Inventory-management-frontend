@@ -10,7 +10,7 @@ export const TagProvider = ({ children }) => {
     const fetchAllTags = useCallback( async () => {
         setLoading(true);
         try {
-            const data = await TagService.getAll();
+            const data = await TagsService.getAll();
             setAllTags(data);
         } finally {
             setLoading(false);

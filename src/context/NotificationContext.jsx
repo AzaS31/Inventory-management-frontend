@@ -17,13 +17,28 @@ export const NotificationProvider = ({ children }) => {
     return (
         <NotificationContext.Provider value={{ notify }}>
             {children}
-            <ToastContainer position="top-end" className="p-3">
+            <ToastContainer
+                className="position-fixed top-50 start-50 translate-middle p-3"
+                style={{ zIndex: 2000 }}
+            >
                 {notifications.map(({ id, message, type }) => (
-                    <Toast key={id} bg={type} onClose={() => setNotifications(prev => prev.filter(n => n.id !== id))} autohide delay={3000}>
-                        <Toast.Header>
-                            <strong className="me-auto">{type.toUpperCase()}</strong>
+                    <Toast
+                        key={id}
+                        bg={type}
+                        onClose={() =>
+                            setNotifications(prev => prev.filter(n => n.id !== id))
+                        }
+                        autohide
+                        delay={2000}
+                    >
+                        <Toast.Header closeButton={true}>
+                            <strong className="me-auto">
+                                {type.toUpperCase()}
+                            </strong>
                         </Toast.Header>
-                        <Toast.Body>{message}</Toast.Body>
+                        <Toast.Body className="text-center fs-5">
+                            {message}
+                        </Toast.Body>
                     </Toast>
                 ))}
             </ToastContainer>

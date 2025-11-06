@@ -88,12 +88,10 @@ const ItemPage = () => {
             />
 
             <Card className="p-4 shadow-sm">
-                {/* Верхняя панель с названием, действиями и лайком */}
                 <div className="d-flex justify-content-between align-items-start mb-3">
                     <h3 className="mb-0">{item.name}</h3>
 
                     <div className="d-flex align-items-center gap-2">
-                        {/* Лайк */}
                         <Tooltip message={!user ? "Log in to like this item" : ""} show={!user}>
                             <Button
                                 variant={isLiked ? "primary" : "outline-primary"}
@@ -131,19 +129,30 @@ const ItemPage = () => {
                     </div>
                 </div>
 
-                <div className="mb-3 text-muted">
-                    <div><strong>Inventory:</strong> {item.inventory?.title || "—"}</div>
-                    <div><strong>Custom ID:</strong> {item.customId || "—"}</div>
-                    <div><strong>Created By:</strong> {item.creator?.username || "—"}</div>
-                    <div><strong>Created:</strong> {new Date(item.createdAt).toLocaleDateString()}</div>
+                <div className="mb-3 text-dark">
+                    {[
+                        { label: "Inventory", value: item.inventory?.title },
+                        { label: "Custom ID", value: item.customId },
+                        { label: "Author", value: item.author },
+                        { label: "Year", value: item.year },
+                        { label: "Pages", value: item.pages },
+                        { label: "Created By", value: item.creator?.username },
+                        { label: "Created", value: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : null },
+                    ].map(({ label, value }) => (
+                        value !== undefined && value !== null ? (
+                            <div key={label}>
+                                <strong>{label}:</strong> {value || "—"}
+                            </div>
+                        ) : null
+                    ))}
                 </div>
 
                 {item.customValues?.length > 0 && (
                     <div className="mt-3">
                         <h6 className="fw-semibold mb-2">Custom Fields:</h6>
-                        <div className="d-flex flex-wrap gap-4">
+                        <div className="d-flex flex-column gap-2">
                             {item.customValues
-                                .filter(cv => cv.customField?.showInTable)
+                                .filter(cv => cv.customField)
                                 .map(cv => (
                                     <div key={cv.id}>
                                         <strong>{cv.customField?.name || "Field"}:</strong> {cv.value ?? "-"}
