@@ -4,11 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useInventory } from "../../context/InventoryContext";
 import InventoryTableBase from "../../components/InventoryTableBase";
 import TableToolbar from "../../components/TableToolbar";
+import InventorySort from "../../components/InventorySort";
 
 export default function MyInventories() {
-    const { myInventories, fetchMyInventories, deleteInventoriesBatch } = useInventory();
+    const { myInventories, fetchMyInventories, fetchSortedInventories, deleteInventoriesBatch } = useInventory();
     const [selected, setSelected] = useState([]);
-    const [loading, setLoading] = useState(false); // 🔹 локальный loading
+    const [loading, setLoading] = useState(false);
+    const [sortBy, setSortBy] = useState("title");
+    const [order, setOrder] = useState("asc");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,6 +31,12 @@ export default function MyInventories() {
 
     const handleSelectAll = (checked) => {
         setSelected(checked ? myInventories.map(i => i.id) : []);
+    };
+
+    const handleSort = (newSortBy, newOrder) => {
+        setSortBy(newSortBy);
+        setOrder(newOrder);
+        fetchSortedInventories(newSortBy, newOrder);
     };
 
     const handleCreate = () => navigate("/inventory/create");
@@ -58,6 +67,7 @@ export default function MyInventories() {
 
     return (
         <>
+            <InventorySort sortBy={sortBy} order={order} onSort={handleSort} />
             <TableToolbar
                 selectedCount={selected.length}
                 onCreate={handleCreate}

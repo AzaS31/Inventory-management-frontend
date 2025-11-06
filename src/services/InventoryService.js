@@ -36,6 +36,13 @@ export const InventoryService = {
         return res.data;
     },
 
+    async getSorted(sortBy, order) {
+        const res = await api.get(`/inventories/sorted`, {
+            params: { sortBy, order } 
+        });
+        return res.data;
+    },
+
     async create(data) {
         const res = await api.post("/inventories", data);
         return res.data;

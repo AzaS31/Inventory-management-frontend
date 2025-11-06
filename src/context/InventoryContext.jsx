@@ -76,6 +76,18 @@ export const InventoryProvider = ({ children }) => {
         [fetchInventories]
     );
 
+    const fetchSortedInventories = useCallback(
+        (sortBy, order) => {
+            fetchInventories(
+                () => InventoryService.getSorted(sortBy, order),
+                setMyInventories, 
+                `sorted inventories by ${sortBy}`,
+                false
+            );
+        },
+        [fetchInventories]
+    );
+
     const createInventory = useCallback(async (data) => {
         setLoading(true);
         try {
@@ -225,6 +237,7 @@ export const InventoryProvider = ({ children }) => {
                 fetchSharedWithMeInventories,
                 fetchUserInventories,
                 fetchSharedWithUserInventories,
+                fetchSortedInventories,
                 createInventory,
                 getInventoryById,
                 updateInventory,
