@@ -17,9 +17,8 @@ export default function InventoryFilter({ onFilter }) {
 
     return (
         <Row className="mb-3">
-            <Col xs={12} md={3}>
+            <Col xs={12} md={2}>
                 <Form.Select
-                    className="w-50"
                     value={categoryId}
                     onChange={(e) => handleChange(e.target.value)}
                 >

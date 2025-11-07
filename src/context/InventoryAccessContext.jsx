@@ -7,6 +7,7 @@ export const InventoryAccessProvider = ({ children }) => {
     const [accessList, setAccessList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [searchResults, setSearchResults] = useState([]);
 
     const fetchAccessList = useCallback(async (inventoryId) => {
         setLoading(true);
@@ -21,9 +22,9 @@ export const InventoryAccessProvider = ({ children }) => {
         }
     }, []);
 
-    const grantAccess = useCallback(async (inventoryId, email) => {
+    const grantAccess = useCallback(async (inventoryId, identifier) => {
         try {
-            const access = await InventoryAccessService.addAccess(inventoryId, email);
+            const access = await InventoryAccessService.addAccess(inventoryId, identifier);
             setAccessList((prev) => [...prev, access]);
         } catch (err) {
             console.error(err);
@@ -41,6 +42,15 @@ export const InventoryAccessProvider = ({ children }) => {
         }
     }, []);
 
+    const searchUsers = useCallback(async (query) => {
+        try {
+            const results = await InventoryAccessService.searchUsers(query);
+            setSearchResults(results);
+        } catch (err) {
+            console.error("User search failed:", err);
+        }
+    }, []);
+
     return (
         <InventoryAccessContext.Provider
             value={{
@@ -50,6 +60,8 @@ export const InventoryAccessProvider = ({ children }) => {
                 fetchAccessList,
                 grantAccess,
                 revokeAccess,
+                searchResults,
+                searchUsers,
             }}
         >
             {children}

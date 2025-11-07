@@ -6,8 +6,8 @@ export const InventoryAccessService = {
         return response.data;
     },
 
-    async addAccess(inventoryId, email) {
-        const response = await api.post(`/inventory-access`, { inventoryId, email });
+    async addAccess(inventoryId, identifier) {
+        const response = await api.post(`/inventory-access/add`, { inventoryId, identifier });
         return response.data;
     },
 
@@ -15,4 +15,10 @@ export const InventoryAccessService = {
         const response = await api.delete(`/inventory-access/${inventoryId}/${userId}`);
         return response.data;
     },
-}
+
+    async searchUsers(query) {
+        if (!query || query.trim().length < 2) return [];
+        const response = await api.get(`/inventory-access/search?q=${encodeURIComponent(query)}`);
+        return response.data;
+    },
+};

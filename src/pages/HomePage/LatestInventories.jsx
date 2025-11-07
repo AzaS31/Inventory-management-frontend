@@ -15,7 +15,7 @@ export default function LastInventories() {
         fetchData();
     }, [fetchLatestInventories]);
 
-    if (loading) return <p>Loading inventories...</p>;
+    if (loading) return <p>Loading last inventories...</p>;
 
     return <InventoryTableBase data={latestInventories} />;
 }

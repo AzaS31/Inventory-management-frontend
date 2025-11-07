@@ -89,7 +89,7 @@ export default function ItemTable({
                             <td>
                                 {item.creator ? (
                                     <span
-                                        style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+                                        style={{ cursor: "pointer" }}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (item.creatorId === user?.id) {

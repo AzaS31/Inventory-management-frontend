@@ -8,8 +8,8 @@ export default function InventorySort({ sortOption, onSort }) {
 
     return (
         <Row className="mb-3">
-            <Col xs={12} md={3}> 
-                <Form.Select className="w-50" value={sortOption} onChange={handleSortChange}>
+            <Col xs={12} md={2}> 
+                <Form.Select className="" value={sortOption} onChange={handleSortChange}>
                     <option value="title-asc">Title ↑</option>
                     <option value="title-desc">Title ↓</option>
                     <option value="category-asc">Category ↑</option>

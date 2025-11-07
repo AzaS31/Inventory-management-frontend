@@ -27,3 +27,7 @@ html {
   will-change: transform;
 }
 
+.sortAndFilterSelectors {
+  display: flex;
+  flex-direction: row;
+}

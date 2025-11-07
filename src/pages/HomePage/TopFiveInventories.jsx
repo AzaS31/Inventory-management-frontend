@@ -15,7 +15,7 @@ export default function TopFiveInventories() {
         fetchData();
     }, [fetchTopFiveInventories]);
 
-    if (loading) return <p>Loading inventories...</p>;
+    if (loading) return <p>Loading top-5 inventories...</p>;
 
     return <InventoryTableBase data={topFiveInventories} />;
 }

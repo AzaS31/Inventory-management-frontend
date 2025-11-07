@@ -3,11 +3,13 @@ import { useComment } from "../../../context/CommentContext";
 import { useAuth } from "../../../context/AuthContext";
 import ReactMarkdown from "react-markdown";
 import { Button, Form, Dropdown } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 export default function DiscussionTab({ inventoryId }) {
     const { user } = useAuth();
     const { comments, fetchComments, createComment, removeComment } = useComment();
     const [content, setContent] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (inventoryId) fetchComments(inventoryId);
@@ -20,7 +22,7 @@ export default function DiscussionTab({ inventoryId }) {
         setContent("");
     };
 
-      return (
+    return (
         <div className="p-3">
             {user && (
                 <Form onSubmit={handleSubmit} className="mb-3">
@@ -45,7 +47,19 @@ export default function DiscussionTab({ inventoryId }) {
                         <div key={c.id} className="border-bottom mb-3 pb-2 position-relative">
                             <div className="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <strong>{c.author.username}</strong>{" "}
+                                    <span
+                                        style={{ cursor: "pointer" }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (user && user.id === c.author.id) {
+                                                navigate("/profile");
+                                            } else {
+                                                navigate(`/users/${c.author.id}`);
+                                            }
+                                        }}
+                                    >
+                                        {c.author.username}
+                                    </span>{" "}
                                     <span className="text-muted small">
                                         {new Date(c.createdAt).toLocaleString()}
                                     </span>

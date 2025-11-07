@@ -6,8 +6,6 @@ import TagClouds from "./TagClouds";
 export default function HomePage() {
     return (
         <div className="container mt-4">
-            <Breadcrumbs labelsMap={{ home: "Home" }} />
-
             <h2 className="mb-4">Latest Inventories</h2>
             <LatestInventories />
             

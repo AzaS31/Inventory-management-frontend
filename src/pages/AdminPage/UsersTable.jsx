@@ -66,11 +66,7 @@ export default function UsersTable({
                         <td>{index + 1}</td>
                         <td>
                             <span
-                                style={{
-                                    color: "blue",
-                                    textDecoration: "underline",
-                                    cursor: "pointer",
-                                }}
+                                style={{ cursor: "pointer" }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if (currentUser && currentUser.id === user.id) {

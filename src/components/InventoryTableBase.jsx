@@ -3,7 +3,7 @@ import { Table, Form } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import Pagination from "./Pagination";
 import ReactMarkdown from "react-markdown";
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../context/AuthContext";
 
 export default function InventoryTableBase({
     data = [],
@@ -14,9 +14,9 @@ export default function InventoryTableBase({
 }) {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user } = useAuth(); 
+    const { user } = useAuth();
 
-    const itemsPerPage = 10;
+    const itemsPerPage = 20;
     const [currentPage, setCurrentPage] = useState(1);
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -88,11 +88,7 @@ export default function InventoryTableBase({
                             <td>
                                 {inv.owner ? (
                                     <span
-                                        style={{
-                                            color: "blue",
-                                            textDecoration: "underline",
-                                            cursor: "pointer",
-                                        }}
+                                        style={{ cursor: "pointer" }}
                                         onClick={(e) => {
                                             e.stopPropagation();
 

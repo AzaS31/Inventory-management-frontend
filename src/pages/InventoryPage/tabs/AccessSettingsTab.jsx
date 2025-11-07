@@ -1,30 +1,50 @@
 import { useEffect, useState } from "react";
-import { Table, Form, Button, Spinner, Alert } from "react-bootstrap";
+import { Table, Form, Button, Spinner, Alert, ListGroup } from "react-bootstrap";
 import { useInventoryAccess } from "../../../context/InventoryAccessContext";
+import { useConfirm } from "../../../context/ConfirmContext";
 
 const AccessSettingsTab = ({ inventory }) => {
-    const { accessList, loading, error, fetchAccessList, grantAccess, revokeAccess } =
-        useInventoryAccess();
+    const {
+        accessList,
+        loading,
+        error,
+        fetchAccessList,
+        grantAccess,
+        revokeAccess,
+        searchResults,
+        searchUsers,
+    } = useInventoryAccess();
 
-    const [email, setEmail] = useState("");
+    const confirm = useConfirm();
+
+    const [query, setQuery] = useState("");
+    const [showResults, setShowResults] = useState(false);
     const [addError, setAddError] = useState(null);
     const [addLoading, setAddLoading] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState([]);
 
     useEffect(() => {
-        if (!inventory?.id) return;
-        fetchAccessList(inventory.id);
-    }, [inventory?.id]);
+        if (inventory?.id) fetchAccessList(inventory.id);
+    }, [inventory?.id, fetchAccessList]);
 
-    const handleAddUser = async () => {
+    useEffect(() => {
+        if (query.trim().length >= 2) {
+            const delay = setTimeout(() => searchUsers(query.trim()), 400);
+            return () => clearTimeout(delay);
+        }
+    }, [query, searchUsers]);
+
+    const handleAddUser = async (identifier) => {
         setAddLoading(true);
         setAddError(null);
         try {
-            await grantAccess(inventory.id, email);
-            setEmail("");
+            await grantAccess(inventory.id, identifier);
+            await fetchAccessList(inventory.id);
+            setQuery("");
+            setShowResults(false);
         } catch (err) {
             console.error(err);
-            setAddError(err.message);
+            setAddError(err.response?.data?.message || "Failed to add access");
         } finally {
             setAddLoading(false);
         }
@@ -39,21 +59,20 @@ const AccessSettingsTab = ({ inventory }) => {
     };
 
     const handleSelectAll = (checked) => {
-        if (checked) {
-            setSelectedUsers(accessList.map((a) => a.user.id));
-        } else {
-            setSelectedUsers([]);
-        }
+        setSelectedUsers(checked ? accessList.map((a) => a.user.id) : []);
     };
 
     const handleRemoveSelected = async () => {
         if (selectedUsers.length === 0) return;
-        if (!window.confirm(`Remove ${selectedUsers.length} user(s)?`)) return;
+
+        const ok = await confirm(`Remove ${selectedUsers} user(s)?`);
+        if (!ok) return;
 
         try {
             for (const userId of selectedUsers) {
                 await revokeAccess(inventory.id, userId);
             }
+            await fetchAccessList(inventory.id);
             setSelectedUsers([]);
         } catch (err) {
             console.error(err);
@@ -62,47 +81,81 @@ const AccessSettingsTab = ({ inventory }) => {
 
     return (
         <div>
-            <h5>Write Access Settings for: {inventory.title}</h5>
+            <h5 className="mb-3">Write Access Settings for: {inventory.title}</h5>
 
-            <Form className="d-flex mb-3" onSubmit={(e) => e.preventDefault()}>
-                <Form.Control
-                    type="email"
-                    placeholder="User email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <Button
-                    className="ms-2"
-                    onClick={handleAddUser}
-                    disabled={addLoading}
-                >
-                    {addLoading ? <Spinner size="sm" animation="border" /> : "Add"}
-                </Button>
+            <Form
+                className="position-relative mb-3"
+                onSubmit={(e) => e.preventDefault()}
+                autoComplete="off"
+            >
+                <div className="d-flex">
+                    <Form.Control
+                        type="text"
+                        placeholder="Search user by email or username"
+                        value={query}
+                        onChange={(e) => {
+                            setQuery(e.target.value);
+                            setShowResults(true);
+                        }}
+                        onBlur={() => setTimeout(() => setShowResults(false), 150)} 
+                    />
+                    <Button
+                        className="ms-2"
+                        disabled={addLoading || !query.trim()}
+                        onClick={() => handleAddUser(query.trim())}
+                    >
+                        {addLoading ? <Spinner size="sm" animation="border" /> : "Add"}
+                    </Button>
+                </div>
+
+                {showResults && searchResults.length > 0 && (
+                    <ListGroup
+                        className="position-absolute w-100 mt-1 shadow-sm"
+                        style={{ zIndex: 10 }}
+                    >
+                        {searchResults.map((user) => (
+                            <ListGroup.Item
+                                key={user.id}
+                                action
+                                onMouseDown={() => handleAddUser(user.email)} // onMouseDown, чтобы не срабатывал blur раньше
+                            >
+                                <div>
+                                    <strong>{user.username}</strong>{" "}
+                                    <span className="text-muted">({user.email})</span>
+                                </div>
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                )}
             </Form>
+
             {addError && <Alert variant="danger">{addError}</Alert>}
 
             {loading ? (
-                <Spinner animation="border" />
+                <div className="text-center py-4">
+                    <Spinner animation="border" />
+                </div>
             ) : error ? (
                 <Alert variant="danger">{error}</Alert>
+            ) : accessList.length === 0 ? (
+                <Alert variant="secondary">No users with access yet.</Alert>
             ) : (
                 <>
-                    {accessList.length > 0 && (
-                        <div className="d-flex justify-content-between align-items-center mb-3">
-                            <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                onClick={handleRemoveSelected}
-                                disabled={selectedUsers.length === 0}
-                            >
-                                Delete
-                            </Button>
-                            <div className="text-muted small">
-                                Selected: {selectedUsers.length}
-                            </div>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={handleRemoveSelected}
+                            disabled={selectedUsers.length === 0}
+                        >
+                            Delete Selected
+                        </Button>
+                        <div className="text-muted small">
+                            Selected: {selectedUsers.length}
                         </div>
-                    )}
-                    <Table bordered hover>
+                    </div>
+
+                    <Table bordered hover responsive>
                         <thead>
                             <tr>
                                 <th style={{ width: "40px" }}>

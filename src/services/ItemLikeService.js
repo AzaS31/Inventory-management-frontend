@@ -2,6 +2,7 @@ import api from "../api/axios";
 
 export const ItemLikeService = {
     async toggleLike(itemId) {
+        
         const res = await api.post(`/item-likes/${itemId}/toggle-like`);
         return res.data;
     },
