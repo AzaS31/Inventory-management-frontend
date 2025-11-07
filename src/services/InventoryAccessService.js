@@ -2,7 +2,7 @@ import api from "../api/axios";
 
 export const InventoryAccessService = {
     async getAccessList(inventoryId) {
-        const response = await api.get(`/inventory-access/${inventoryId}`);
+        const response = await api.get(`/inventory-access/access/${inventoryId}`);
         return response.data;
     },
 
@@ -12,7 +12,7 @@ export const InventoryAccessService = {
     },
 
     async removeAccess(inventoryId, userId) {
-        const response = await api.delete(`/inventory-access/${inventoryId}/${userId}`);
+        const response = await api.delete(`/inventory-access/${inventoryId}/user/${userId}`);
         return response.data;
     },
 

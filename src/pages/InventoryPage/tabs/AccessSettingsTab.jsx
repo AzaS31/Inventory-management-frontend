@@ -65,7 +65,7 @@ const AccessSettingsTab = ({ inventory }) => {
     const handleRemoveSelected = async () => {
         if (selectedUsers.length === 0) return;
 
-        const ok = await confirm(`Remove ${selectedUsers} user(s)?`);
+        const ok = await confirm(`Remove ${selectedUsers.length} user(s)?`);
         if (!ok) return;
 
         try {

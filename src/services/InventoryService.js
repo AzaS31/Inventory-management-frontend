@@ -32,7 +32,7 @@ export const InventoryService = {
     },
 
     async getById(id) {
-        const res = await api.get(`/inventories/${id}`);
+        const res = await api.get(`/inventories/inventory/${id}`);
         return res.data;
     },
 
@@ -53,22 +53,22 @@ export const InventoryService = {
     },
 
     async create(data) {
-        const res = await api.post("/inventories", data);
+        const res = await api.post("/inventories/inventory/create", data);
         return res.data;
     },
 
     async update(id, data) {
-        const res = await api.put(`/inventories/${id}`, data);
+        const res = await api.put(`/inventories/inventory/${id}`, data);
         return res.data;
     },
 
     async updateCustomIdFormat(id, customIdFormat) {
-        const res = await api.put(`/inventories/${id}/custom-id-format`, { customIdFormat });
+        const res = await api.put(`/inventories/inventory/${id}/custom-id-format`, { customIdFormat });
         return res.data;
     },
 
     async delete(id) {
-        const res = await api.delete(`/inventories/${id}`);
+        const res = await api.delete(`/inventories/inventory/delete/${id}`);
         return res.data;
     },
 
