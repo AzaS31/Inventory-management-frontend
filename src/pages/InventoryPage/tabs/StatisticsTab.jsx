@@ -1,13 +1,8 @@
-// /src/pages/InventoryPage/components/StatisticsTab.jsx
-
-import React from 'react';
-
 const StatisticsTab = ({ inventoryId }) => {
     return (
         <div className="p-3">
-            <h4>Статистика / Агрегация</h4>
-            <p>Статистические данные для инвентаря с ID: {inventoryId}.</p>
-            <p className="text-muted">Здесь могут быть графики, общее количество айтемов, история изменений и т.д.</p>
+            <h4>Statistics / Aggregation</h4>
+            <p>Statistical data for the inventory with ID: {inventoryId}.</p>
         </div>
     );
 };

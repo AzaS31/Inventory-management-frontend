@@ -192,11 +192,11 @@ export default function ItemCreatePage() {
                     <CustomFieldsForm fields={fields} onChange={handleChange} />
 
                     <div className="d-flex justify-content-between mt-4">
-                        <Button variant="secondary" onClick={() => navigate(`/inventory/${inventoryId}`)}>
-                            Cancel
-                        </Button>
                         <Button type="submit" variant="primary">
                             Save
+                        </Button>
+                        <Button variant="secondary" onClick={() => navigate(`/inventory/${inventoryId}`)}>
+                            Cancel
                         </Button>
                     </div>
                 </Form>

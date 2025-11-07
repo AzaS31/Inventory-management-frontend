@@ -14,18 +14,22 @@ import StatisticsTab from "./tabs/StatisticsTab";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import ReactMarkdown from "react-markdown";
 import { getAccessInfo } from "../../utils/accessUtils";
+import { useConfirm } from "../../context/ConfirmContext";
+import { useNotification } from "../../context//NotificationContext";
 
 export default function InventoryPage() {
     const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { getInventoryById, updateInventoryCustomIdFormat, deleteInventory } = useInventory();
+    const { getInventoryById, updateInventoryCustomIdFormat, deleteInventoryById } = useInventory();
     const { fetchItems, loading: itemsLoading } = useItem();
     const { user } = useAuth();
+    const confirm = useConfirm();
+    const { notify } = useNotification();
 
     const [inventory, setInventory] = useState(null);
-    const [loading, setLoading] = useState(true); 
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -76,30 +80,24 @@ export default function InventoryPage() {
     });
 
     const handleDelete = async () => {
-        const confirmed = window.confirm("Are you sure you want to delete this inventory?");
+        const confirmed = await confirm(`Are you sure you want to delete ${inventory.title}?`);
         if (!confirmed) return;
 
         try {
-            await deleteInventory(inventory.id, inventory.ownerId);
-            alert("Inventory deleted successfully");
-
+            await deleteInventoryById(inventory.id, inventory.ownerId);
+            notify("Inventory deleted successfully");
             const from = location.state?.from;
-            if (from) {
-                navigate(from, { replace: true });
-            } else {
-                navigate("/inventories");
-            }
+            navigate(from || "/profile", { replace: true });
         } catch (err) {
             console.error(err);
-            alert("Failed to delete inventory");
+            notify("Failed to delete inventory");
         }
     };
 
     const availableTabs = [
         "items",
         "discussion",
-        ...(isAdmin || isOwner ? ["general", "customId", "access", "customFields"] : []),
-        "statistics",
+        ...(isAdmin || isOwner ? ["general", "customId", "access", "customFields", "statistics"] : []),
     ];
 
     return (

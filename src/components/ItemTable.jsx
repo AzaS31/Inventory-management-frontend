@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Table, Form } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Pagination from "./Pagination";
+import { useAuth } from "../context/AuthContext";
 
 export default function ItemTable({
     items = [],
@@ -14,6 +15,7 @@ export default function ItemTable({
     const navigate = useNavigate();
     const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
+    const { user } = useAuth();
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -83,7 +85,27 @@ export default function ItemTable({
                                     </td>
                                 );
                             })}
-                            <td>{item.creator?.username || "—"}</td>
+
+                            <td>
+                                {item.creator ? (
+                                    <span
+                                        style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (item.creatorId === user?.id) {
+                                                navigate("/profile");
+                                            } else {
+                                                navigate(`/users/${item.creatorId}`);
+                                            }
+                                        }}
+                                    >
+                                        {item.creator.username}
+                                    </span>
+                                ) : (
+                                    "—"
+                                )}
+                            </td>
+
                             <td>{item.likesCount || 0}</td>
                             <td>{new Date(item.createdAt).toLocaleString()}</td>
                         </tr>

@@ -80,12 +80,25 @@ export const InventoryProvider = ({ children }) => {
         (sortBy, order) => {
             fetchInventories(
                 () => InventoryService.getSorted(sortBy, order),
-                setMyInventories, 
+                setMyInventories,
                 `sorted inventories by ${sortBy}`,
                 false
             );
         },
         [fetchInventories]
+    );
+
+    const fetchFilteredInventoriesByCategory = useCallback(
+        (categoryId) => {
+            if (!user) return;
+            fetchInventories(
+                () => InventoryService.getFilteredByCategory(user.id, categoryId),
+                setMyInventories,
+                "filtered inventories",
+                false
+            );
+        },
+        [fetchInventories, user]
     );
 
     const createInventory = useCallback(async (data) => {
@@ -102,96 +115,73 @@ export const InventoryProvider = ({ children }) => {
         }
     }, []);
 
-    const updateInventory = useCallback(
-        async (id, data, ownerId) => {
-            setLoading(true);
-            try {
-                const updated = await InventoryService.update(id, data);
+    const updateStates = useCallback((callback) => {
+        const allStates = [
+            [myInventories, setMyInventories],
+            [sharedWithMeInventories, setSharedWithMeInventories],
+            [userInventories, setUserInventories],
+            [sharedWithUserInventories, setSharedWithUserInventories]
+        ];
+        allStates.forEach(([, setState]) => setState(prev => callback(prev)));
+    }, [myInventories, sharedWithMeInventories, userInventories, sharedWithUserInventories]);
 
-                if (user?.id === ownerId) {
-                    setMyInventories(prev => prev.map(inv => inv.id === id ? updated : inv));
-                } else if (user?.role?.name === "ADMIN") {
-                    const allStates = [
-                        [myInventories, setMyInventories],
-                        [sharedWithMeInventories, setSharedWithMeInventories],
-                        [userInventories, setUserInventories],
-                        [sharedWithUserInventories, setSharedWithUserInventories]
-                    ];
-                    allStates.forEach(([, setState]) => {
-                        setState(prev => prev.map(inv => (inv.id === id ? updated : inv)));
-                    });
-                } else {
-                    setSharedWithMeInventories(prev => prev.map(inv => inv.id === id ? updated : inv));
-                }
+    const updateInventory = useCallback(async (id, data, ownerId) => {
+        setLoading(true);
+        try {
+            const updated = await InventoryService.update(id, data);
 
-                return updated;
-            } catch (err) {
-                setError(err.response?.data?.message || "Failed to update inventory");
-                throw err;
-            } finally {
-                setLoading(false);
+            if (user?.role?.name === "ADMIN") {
+                updateStates(prev => prev.map(inv => inv.id === id ? updated : inv));
+            } else if (user?.id === ownerId) {
+                setMyInventories(prev => prev.map(inv => inv.id === id ? updated : inv));
+            } else {
+                setSharedWithMeInventories(prev => prev.map(inv => inv.id === id ? updated : inv));
             }
-        },
-        [user, myInventories, sharedWithMeInventories, userInventories, sharedWithUserInventories]
-    );
 
-    const deleteInventory = useCallback(
-        async (id, ownerId) => {
-            setLoading(true);
-            try {
-                await InventoryService.delete(id);
+            return updated;
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to update inventory");
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, [user, updateStates]);
 
-                if (user?.role?.name === "ADMIN") {
-                    const allStates = [
-                        [myInventories, setMyInventories],
-                        [sharedWithMeInventories, setSharedWithMeInventories],
-                        [userInventories, setUserInventories],
-                        [sharedWithUserInventories, setSharedWithUserInventories]
-                    ];
-                    allStates.forEach(([, setState]) => {
-                        setState(prev => prev.filter(inv => inv.id !== id));
-                    });
-                } else if (user?.id === ownerId) {
-                    setMyInventories(prev => prev.filter(inv => inv.id !== id));
-                } else {
-                    setSharedWithMeInventories(prev => prev.filter(inv => inv.id !== id));
-                }
-            } catch (err) {
-                setError(err.response?.data?.message || "Failed to delete inventory");
-            } finally {
-                setLoading(false);
+    const deleteInventoryById = useCallback(async (id, ownerId) => {
+        setLoading(true);
+        try {
+            await InventoryService.delete(id);
+
+            if (user?.role?.name === "ADMIN") {
+                updateStates(prev => prev.filter(inv => inv.id !== id));
+            } else if (user?.id === ownerId) {
+                setMyInventories(prev => prev.filter(inv => inv.id !== id));
+            } else {
+                setSharedWithMeInventories(prev => prev.filter(inv => inv.id !== id));
             }
-        },
-        [user, myInventories, sharedWithMeInventories, userInventories, sharedWithUserInventories]
-    );
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to delete inventory");
+        } finally {
+            setLoading(false);
+        }
+    }, [user, updateStates]);
 
-    const deleteInventoriesBatch = useCallback(
-        async (ids) => {
-            setLoading(true);
-            try {
-                await InventoryService.deleteBatch(ids);
+    const deleteInventoriesBatch = useCallback(async (ids) => {
+        setLoading(true);
+        try {
+            await InventoryService.deleteBatch(ids);
 
-                if (user?.role?.name === "ADMIN") {
-                    const allStates = [
-                        [myInventories, setMyInventories],
-                        [sharedWithMeInventories, setSharedWithMeInventories],
-                        [userInventories, setUserInventories],
-                        [sharedWithUserInventories, setSharedWithUserInventories]
-                    ];
-                    allStates.forEach(([, setState]) => {
-                        setState(prev => prev.filter(inv => !ids.includes(inv.id)));
-                    });
-                } else {
-                    setMyInventories(prev => prev.filter(inv => !ids.includes(inv.id)));
-                }
-            } catch (err) {
-                setError(err.response?.data?.message || "Failed to delete selected inventories");
-            } finally {
-                setLoading(false);
+            if (user?.role?.name === "ADMIN") {
+                updateStates(prev => prev.filter(inv => !ids.includes(inv.id)));
+            } else {
+                setMyInventories(prev => prev.filter(inv => !ids.includes(inv.id)));
             }
-        },
-        [user, myInventories, sharedWithMeInventories, userInventories, sharedWithUserInventories]
-    );
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to delete selected inventories");
+        } finally {
+            setLoading(false);
+        }
+    }, [user, updateStates]);
 
     const getInventoryById = useCallback(async (id) => {
         try {
@@ -238,11 +228,12 @@ export const InventoryProvider = ({ children }) => {
                 fetchUserInventories,
                 fetchSharedWithUserInventories,
                 fetchSortedInventories,
+                fetchFilteredInventoriesByCategory,
                 createInventory,
                 getInventoryById,
                 updateInventory,
                 updateInventoryCustomIdFormat,
-                deleteInventory,
+                deleteInventoryById,
                 deleteInventoriesBatch,
             }}
         >

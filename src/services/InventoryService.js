@@ -38,7 +38,16 @@ export const InventoryService = {
 
     async getSorted(sortBy, order) {
         const res = await api.get(`/inventories/sorted`, {
-            params: { sortBy, order } 
+            params: { sortBy, order }
+        });
+        return res.data;
+    },
+
+    async getFilteredByCategory(userId, categoryId) {
+        console.log(userId, categoryId);
+        
+        const res = await api.get(`/inventories/filtered`, {
+            params: { userId, categoryId }
         });
         return res.data;
     },

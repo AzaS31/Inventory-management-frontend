@@ -5,9 +5,10 @@ import { useInventory } from "../../context/InventoryContext";
 import InventoryTableBase from "../../components/InventoryTableBase";
 import TableToolbar from "../../components/TableToolbar";
 import InventorySort from "../../components/InventorySort";
+import InventoryFilter from "../../components/InventoryFilter";
 
 export default function MyInventories() {
-    const { myInventories, fetchMyInventories, fetchSortedInventories, deleteInventoriesBatch } = useInventory();
+    const { myInventories, fetchMyInventories, fetchSortedInventories, fetchFilteredInventoriesByCategory, deleteInventoriesBatch } = useInventory();
     const [selected, setSelected] = useState([]);
     const [loading, setLoading] = useState(false);
     const [sortOption, setSortOption] = useState("title-asc");
@@ -41,7 +42,7 @@ export default function MyInventories() {
 
     const handleEdit = () => {
         if (selected.length === 1) {
-            navigate(`/inventories/${selected[0]}?tab=general`);
+            navigate(`/inventory/${selected[0]}?tab=general`);
         }
     };
 
@@ -66,6 +67,7 @@ export default function MyInventories() {
     return (
         <>
             <InventorySort sortOption={sortOption} onSort={handleSort} />
+            <InventoryFilter onFilter={fetchFilteredInventoriesByCategory} />
             <TableToolbar
                 selectedCount={selected.length}
                 onCreate={handleCreate}

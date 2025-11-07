@@ -62,7 +62,7 @@ const GeneralSettingsTab = ({ inventory }) => {
 
             await updateInventory(inventory.id, payload, inventory.ownerId);
             await assignTags(inventory.id, tags);
-
+            window.location.reload();
             notify("Inventory updated successfully!");
         } catch (err) {
             console.error(err);

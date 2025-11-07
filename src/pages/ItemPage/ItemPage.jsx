@@ -7,12 +7,16 @@ import { useItemLike } from "../../context/ItemLikeContext";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import Tooltip from "../../components/Tooltip";
 import { getAccessInfo } from "../../utils/accessUtils";
+import { useConfirm } from "../../context/ConfirmContext";
+import { useNotification } from "../../context/NotificationContext";
 
 const ItemPage = () => {
     const { inventoryId, itemId } = useParams();
     const { user } = useAuth();
     const { getItemById, deleteItem } = useItem();
     const { toggleLike, hasLiked } = useItemLike();
+    const confirm = useConfirm();
+    const { notify } = useNotification();
     const navigate = useNavigate();
 
     const [item, setItem] = useState(null);
@@ -48,12 +52,16 @@ const ItemPage = () => {
     const handleEdit = () => navigate(`/inventory/${inventoryId}/item/${itemId}/edit`);
 
     const handleDelete = async () => {
-        if (!window.confirm("Are you sure you want to delete this item?")) return;
+        const confirmed = await confirm(`Are you sure you want to delete ${item.name}?`);
+        if (!confirmed) return;
+
         try {
             await deleteItem(item.inventoryId, item.id);
             navigate(`/inventory/${inventoryId}`);
+            notify(`${item.name} is deleted`)
         } catch (err) {
             console.error(err);
+            notify("Failed to delete item");
         }
     };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Form, Badge, Spinner } from "react-bootstrap";
+import { Form, Badge, Spinner, Button, InputGroup } from "react-bootstrap";
 import { useTags } from "../../context/TagContext";
 
 export default function TagSelector({ value = [], onChange }) {
@@ -19,14 +19,14 @@ export default function TagSelector({ value = [], onChange }) {
             setLoading(true);
             try {
                 const res = await searchTags(input);
-                setSuggestions(res.filter(s => !value.some(v => v === s.name)));
+                setSuggestions(res.filter(s => !value.includes(s.name)));
             } finally {
                 setLoading(false);
             }
         }, 300);
 
         return () => clearTimeout(delay);
-    }, [input]);
+    }, [input, value, searchTags]);
 
     const handleAddTag = (tagName) => {
         if (!tagName.trim() || value.includes(tagName)) return;
@@ -51,17 +51,26 @@ export default function TagSelector({ value = [], onChange }) {
     return (
         <div className="mb-3 position-relative">
             <Form.Label>Tags</Form.Label>
-            <Form.Control
-                type="text"
-                value={input}
-                placeholder="Type and press Enter..."
-                onChange={(e) => {
-                    setInput(e.target.value);
-                    setShowSuggestions(true);
-                }}
-                onKeyDown={handleKeyDown}
-                autoComplete="off"
-            />
+            <InputGroup>
+                <Form.Control
+                    type="text"
+                    value={input}
+                    placeholder="Type and press Enter..."
+                    onChange={(e) => {
+                        setInput(e.target.value);
+                        setShowSuggestions(true);
+                    }}
+                    onKeyDown={handleKeyDown}
+                    autoComplete="off"
+                />
+                <Button
+                    variant="primary"
+                    onClick={() => handleAddTag(input.trim())}
+                    disabled={!input.trim()}
+                >
+                    Add
+                </Button>
+            </InputGroup>
 
             {loading && (
                 <div className="position-absolute end-0 top-0 mt-2 me-3">

@@ -5,11 +5,13 @@ import { useInventory } from "../../context/InventoryContext";
 import { useCategory } from "../../context/CategoryContext";
 import InventoryForm from "./InventoryForm";
 import { useTags } from "../../context/TagContext";
+import { useNotification } from "../../context/NotificationContext";
 
 export default function InventoryCreatePage() {
     const { createInventory } = useInventory();
     const { categories, fetchCategories } = useCategory();
     const { assignTags } = useTags();
+    const { notify } = useNotification();
 
     const [form, setForm] = useState({
         title: "",
@@ -47,8 +49,8 @@ export default function InventoryCreatePage() {
             if (form.tags?.length > 0) {
                 await assignTags(newInventory.id, form.tags);
             }
-
             navigate(`/inventory/${newInventory.id}`);
+            notify(`${newInventory.title} is created`)
         } catch (err) {
             console.error(err);
             alert("Failed to create inventory");
@@ -65,7 +67,7 @@ export default function InventoryCreatePage() {
                         categories={categories}
                         onChange={handleChange}
                         onSubmit={handleSubmit}
-                        onCancel={() => navigate("/inventories")}
+                        onCancel={() => navigate("/profile")}
                     />
                 </Col>
             </Row>
