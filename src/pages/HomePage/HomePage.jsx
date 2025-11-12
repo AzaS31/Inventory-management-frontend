@@ -1,6 +1,5 @@
 import LatestInventories from "./LatestInventories";
 import TopFiveInventories from "./TopFiveInventories";
-import Breadcrumbs from "../../components/Breadcrumbs";
 import TagClouds from "./TagClouds";
 
 export default function HomePage() {

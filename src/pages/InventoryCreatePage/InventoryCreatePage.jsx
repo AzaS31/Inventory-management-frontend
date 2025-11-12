@@ -53,7 +53,7 @@ export default function InventoryCreatePage() {
             notify(`${newInventory.title} is created`)
         } catch (err) {
             console.error(err);
-            alert("Failed to create inventory");
+            notify("Failed to create inventory");
         }
     };
 

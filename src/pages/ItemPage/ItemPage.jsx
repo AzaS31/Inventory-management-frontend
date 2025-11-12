@@ -86,7 +86,7 @@ const ItemPage = () => {
         <div className="container mt-4">
             <Breadcrumbs
                 labelsMap={{
-                    inventory: "Inventory",
+                    inventory: item.inventory.title,
                     item: item.name || "Item",
                 }}
                 idsMap={{

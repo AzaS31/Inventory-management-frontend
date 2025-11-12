@@ -70,7 +70,6 @@ export default function LoginPage() {
 
                 <div className="text-center mb-3">or</div>
 
-                {/* OAuth Buttons */}
                 <div className="d-flex flex-column gap-2">
                     <a href={`${API_URL}/auth/google`} className="btn btn-light border w-100 d-flex align-items-center justify-content-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
