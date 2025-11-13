@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import UserInventories from "./UserInventories";
 import SharedWithUserInventories from "./SharedWithUserInventories";
 import Notification from "../../components/Notification";
+import { useInventory } from "../../context/InventoryContext";
 
 export default function UserProfilePage() {
     const { id } = useParams();
@@ -11,6 +12,7 @@ export default function UserProfilePage() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState({ message: "", type: "info" });
+    const { UserInventories, sharedWithUserInventories, fetch } = useInventory();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -48,7 +50,7 @@ export default function UserProfilePage() {
             </div>
 
             <h4>User Inventories</h4>
-            <UserInventories />
+            <UserInventories users={userInventories} fetch={fetchUserInventories} />
 
             <h4 className="mt-5">Inventories with Access</h4>
             <SharedWithUserInventories />

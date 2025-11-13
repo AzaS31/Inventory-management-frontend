@@ -2,9 +2,12 @@ import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import MyInventories from "./MyInventories";
 import SharedWithMeInventories from "./SharedWithMeInventories";
+import { useNavigate } from "react-router-dom";
+import { Button } from "react-bootstrap";
 
 export default function ProfilePage() {
     const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     if (!user) return <p>Please log in.</p>;
 
@@ -16,6 +19,7 @@ export default function ProfilePage() {
                 <h5>User Information</h5>
                 <p><strong>Email:</strong> {user.email}</p>
                 <p><strong>Role:</strong> {user.role?.name || "USER"}</p>
+                <Button variant="outline-primary" onClick={() => navigate("/salesforce/sync")}>Sync with Salesforce</Button>
             </div>
 
             <h4 className="mt-5 mb-3">My Inventories</h4>

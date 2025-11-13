@@ -12,6 +12,7 @@ import ItemCreatePage from "./pages/ItemCreatePage/ItemCreatePage";
 import ItemEditPage from "./pages/ItemEditPage/ItemEditPage";
 import ItemPage from "./pages/ItemPage/ItemPage";
 import SearchResultPage from "./pages/SearchResultPage/SearchResultPage";
+import SyncWithSalesforceFormPage from "./pages/ProfilePage/SyncWithSalesforceFormPage";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/inventory/:inventoryId/item/:itemId/edit" element={<ProtectedRoute><ItemEditPage /></ProtectedRoute>} />
         <Route path="/inventory/:inventoryId/item/:itemId" element={<ItemPage />} />
         <Route path="/search" element={<SearchResultPage />} />
+        <Route path="/salesforce/sync" element={<ProtectedRoute><SyncWithSalesforceFormPage /></ProtectedRoute>} />
       </Routes>
     </Layout>
   );

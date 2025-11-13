@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 export default function UserInventories() {
     const { id: userId } = useParams();
     const { userInventories, fetchUserInventories } = useInventory();
-    const [loading, setLoading] = useState(false); 
+    const [loading, setLoading] = useState(false);  
 
     useEffect(() => {
         const fetchData = async () => {

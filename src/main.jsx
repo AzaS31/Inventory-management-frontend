@@ -17,6 +17,7 @@ import { SearchProvider } from './context/SearchContext.jsx';
 import { TagProvider } from './context/TagContext.jsx';
 import { ConfirmProvider } from './context/ConfirmContext.jsx';
 import { NotificationProvider } from './context/NotificationContext.jsx';
+import { SalesforceProvider } from './context/SalesforceContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -24,27 +25,29 @@ createRoot(document.getElementById('root')).render(
       <NotificationProvider>
         <AuthProvider>
           <UserProvider>
-            <InventoryProvider>
-              <InventoryAccessProvider>
-                <CategoryProvider>
-                  <ItemProvider>
-                    <ItemLikeProvider>
-                      <CustomFieldProvider>
-                        <CommentProvider>
-                          <SearchProvider>
-                            <TagProvider>
-                              <ConfirmProvider>
-                                <App />
-                              </ConfirmProvider>
-                            </TagProvider>
-                          </SearchProvider>
-                        </CommentProvider>
-                      </CustomFieldProvider>
-                    </ItemLikeProvider>
-                  </ItemProvider>
-                </CategoryProvider>
-              </InventoryAccessProvider>
-            </InventoryProvider>
+            <SalesforceProvider>
+              <InventoryProvider>
+                <InventoryAccessProvider>
+                  <CategoryProvider>
+                    <ItemProvider>
+                      <ItemLikeProvider>
+                        <CustomFieldProvider>
+                          <CommentProvider>
+                            <SearchProvider>
+                              <TagProvider>
+                                <ConfirmProvider>
+                                  <App />
+                                </ConfirmProvider>
+                              </TagProvider>
+                            </SearchProvider>
+                          </CommentProvider>
+                        </CustomFieldProvider>
+                      </ItemLikeProvider>
+                    </ItemProvider>
+                  </CategoryProvider>
+                </InventoryAccessProvider>
+              </InventoryProvider>
+            </SalesforceProvider>
           </UserProvider>
         </AuthProvider>
       </NotificationProvider>
