@@ -13,8 +13,21 @@ export const SalesforceProvider = ({ children }) => {
         }
     }, []);
 
+    const getAuthUrl = useCallback((userId) => {
+        return SalesforceService.getSalesforceAuthUrl(userId);
+    }, []);
+
+    const unsyncWithSalesforce = useCallback(async (email) => {
+        try {
+            return await SalesforceService.unsyncWithSalesforce(email);
+        } catch (error) {
+            console.error("Salesforce unsync failed", error);
+            throw error;
+        }
+    }, []);
+
     return (
-        <SalesforceContext.Provider value={{ syncWithSalesforce }}>
+        <SalesforceContext.Provider value={{ syncWithSalesforce, unsyncWithSalesforce, getAuthUrl }}>
             {children}
         </SalesforceContext.Provider>
     );
