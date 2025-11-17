@@ -206,6 +206,15 @@ export const InventoryProvider = ({ children }) => {
         }
     }, []);
 
+    const generateApiToken = useCallback(async (inventoryId) => {
+        try {
+            const result = await InventoryService.generateApiToken(inventoryId);
+            return result.apiToken;
+        } catch (err) {
+            throw new Error(err.response?.data?.message || "Failed to generate API token");
+        }
+    }, []);
+
     useEffect(() => {
         if (user) fetchMyInventories();
     }, [user, fetchMyInventories]);
@@ -235,6 +244,7 @@ export const InventoryProvider = ({ children }) => {
                 updateInventoryCustomIdFormat,
                 deleteInventoryById,
                 deleteInventoriesBatch,
+                generateApiToken,
             }}
         >
             {children}

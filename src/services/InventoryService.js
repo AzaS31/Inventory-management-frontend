@@ -45,7 +45,7 @@ export const InventoryService = {
 
     async getFilteredByCategory(userId, categoryId) {
         console.log(userId, categoryId);
-        
+
         const res = await api.get(`/inventories/filtered`, {
             params: { userId, categoryId }
         });
@@ -74,6 +74,11 @@ export const InventoryService = {
 
     async deleteBatch(ids) {
         const res = await api.post("/inventories/delete-batch", { ids });
+        return res.data;
+    },
+
+    async generateApiToken(id) {
+        const res = await api.post(`/inventories/inventory/${id}/api-token`);
         return res.data;
     },
 };

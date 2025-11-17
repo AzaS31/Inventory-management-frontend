@@ -11,6 +11,7 @@ import CustomIdTab from "./tabs/CustomIdTab";
 import AccessSettingsTab from "./tabs/AccessSettingsTab";
 import DiscussionTab from "./tabs/DiscussionTab";
 import StatisticsTab from "./tabs/StatisticsTab";
+import ApiTokenTab from "./tabs/ApiTokenTab";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import ReactMarkdown from "react-markdown";
 import { getAccessInfo } from "../../utils/accessUtils";
@@ -97,7 +98,7 @@ export default function InventoryPage() {
     const availableTabs = [
         "items",
         "discussion",
-        ...(isAdmin || isOwner ? ["general", "customId", "access", "customFields", "statistics"] : []),
+        ...(isAdmin || isOwner ? ["general", "customId", "access", "customFields", "statistics", "apiToken"] : []),
     ];
 
     return (
@@ -145,34 +146,46 @@ export default function InventoryPage() {
                         <ItemTableTab inventoryId={inventory.id} canEdit={canEditItems} />
                     </Tab>
                 )}
+                
                 {availableTabs.includes("discussion") && (
                     <Tab eventKey="discussion" title="Discussion Section">
                         <DiscussionTab inventoryId={inventory.id} />
                     </Tab>
                 )}
+
                 {availableTabs.includes("general") && (
                     <Tab eventKey="general" title="General Settings">
                         <GeneralSettingsTab inventory={inventory} />
                     </Tab>
                 )}
+
                 {availableTabs.includes("customId") && (
                     <Tab eventKey="customId" title="Custom Inventory Numbers">
                         <CustomIdTab inventory={inventory} onSaveCustomIdFormat={updateInventoryCustomIdFormat} />
                     </Tab>
                 )}
+
                 {availableTabs.includes("access") && (
                     <Tab eventKey="access" title="Access Settings">
                         <AccessSettingsTab inventory={inventory} />
                     </Tab>
                 )}
+
                 {availableTabs.includes("customFields") && (
                     <Tab eventKey="customFields" title="Editable Set of Fields">
                         <CustomFieldsTab inventoryId={inventory.id} />
                     </Tab>
                 )}
+
                 {availableTabs.includes("statistics") && (
                     <Tab eventKey="statistics" title="Statistics / Aggregation">
                         <StatisticsTab inventoryId={inventory.id} />
+                    </Tab>
+                )}
+
+                {availableTabs.includes("apiToken") && (
+                    <Tab eventKey="apiToken" title="API Token">
+                        <ApiTokenTab inventoryId={inventory.id} initialToken={inventory.apiToken} />
                     </Tab>
                 )}
             </Tabs>
